@@ -1,0 +1,290 @@
+/* Main styling for Challengify */
+
+/* Custom fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #2563eb;
+    --primary-dark: #1d4ed8;
+    --primary-light: #60a5fa;
+    --accent-color: #4f46e5;
+    --accent-dark: #4338ca;
+    --text-color: #1f2937;
+    --text-light: #6b7280;
+    --bg-light: #f9fafb;
+    --white: #ffffff;
+}
+
+body {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--text-color);
+    background-color: var(--bg-light);
+}
+
+/* Header styles */
+.ch-header {
+    background: linear-gradient(135deg, #3b82f6 0%, #4f46e5 100%);
+    color: white;
+    padding: 3rem 0;
+}
+
+/* Navbar styles */
+.ch-navbar {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.ch-navbar-brand {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.ch-navbar .ch-nav-link {
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    transition: color 0.3s ease;
+}
+
+.ch-navbar .ch-nav-link:hover {
+    color: var(--primary-color);
+}
+
+/* Dropdown menu styles */
+.ch-navbar .dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    width: 12rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 0;
+    z-index: 1000;
+    margin-top: 10px;
+}
+
+.ch-navbar .dropdown-menu::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: 20px;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid white;
+}
+
+.ch-navbar .dropdown-menu::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background-color: transparent;
+}
+
+.ch-navbar .dropdown-container {
+    position: relative;
+}
+
+.ch-navbar .dropdown-btn {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    font-family: inherit;
+    color: inherit;
+    transition: all 0.2s ease;
+}
+
+.ch-navbar .dropdown-btn:hover {
+    color: var(--primary-color);
+}
+
+.ch-navbar .dropdown-btn:focus {
+    outline: none;
+}
+
+.ch-navbar .dropdown-btn img {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    margin-right: 0.5rem;
+    object-fit: cover;
+}
+
+.ch-navbar .dropdown-btn .chevron {
+    margin-left: 0.5rem;
+    font-size: 0.75rem;
+}
+
+.ch-navbar .dropdown-menu.show,
+.ch-navbar .dropdown-container:hover .dropdown-menu {
+    display: block;
+}
+
+.ch-navbar .dropdown-item {
+    display: block;
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+    color: var(--text-color);
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+
+.ch-navbar .dropdown-item:hover {
+    background-color: #f9fafb;
+}
+
+.ch-navbar .dropdown-item-danger {
+    color: #ef4444 !important;
+}
+
+.ch-navbar .dropdown-item-danger:hover {
+    background-color: #fee2e2;
+}
+
+.ch-navbar .dropdown-divider {
+    height: 1px;
+    margin: 0.5rem 0;
+    background-color: #e5e7eb;
+}
+
+.ch-navbar .ch-dropdown-menu {
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+}
+
+.ch-navbar .ch-dropdown-item {
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+}
+
+.ch-navbar .ch-dropdown-item:hover {
+    background-color: #faf8f9;
+}
+
+/* Card styles */
+.ch-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: none;
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+
+.ch-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Category cards */
+a .ch-card {
+    color: var(--text-color);
+}
+
+/* Badge styles */
+.ch-badge {
+    font-weight: 500;
+    padding: 0.5em 0.75em;
+    border-radius: 0.375rem;
+}
+
+/* Button styles */
+.ch-btn {
+    font-weight: 500;
+    padding: 0.5rem 1.25rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+    display: inline-block;
+}
+
+.ch-btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.ch-btn-primary:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.ch-btn-outline-primary {
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    background-color: transparent;
+}
+
+.ch-btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.ch-btn-outline-light {
+    color: white;
+    border: 1px solid white;
+    background-color: transparent;
+}
+
+.ch-btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Form controls */
+.ch-form-control {
+    border-radius: 0.5rem;
+    padding: 0.625rem 1rem;
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+}
+
+.ch-form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+/* Footer styles */
+.ch-footer {
+    background-color: #1e293b;
+    color: #f1f5f9;
+}
+
+.ch-footer a {
+    text-decoration: none;
+    color: #e2e8f0;
+    transition: color 0.2s ease;
+}
+
+.ch-footer a:hover {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+/* Custom text colors */
+.ch-text-primary {
+    color: var(--primary-color) !important;
+}
+
+.ch-text-white {
+    color: white !important;
+}
+
+/* Custom backgrounds */
+.ch-bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.ch-bg-gradient {
+    background: linear-gradient(135deg, #3b82f6 0%, #4f46e5 100%) !important;
+}
+
+/* Custom borders */
+.ch-border-primary {
+    border-color: var(--primary-color) !important;
+} 
