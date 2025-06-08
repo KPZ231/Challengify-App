@@ -4,4 +4,3 @@ vendor/
 .env.development
 .env.production
 .env.test
-opis.md
