@@ -22,10 +22,16 @@
                 <?php if (isset($user) && $user->isLoggedIn()): ?>
                     <div class="dropdown-container">
                         <button type="button" class="dropdown-btn">
-                            <img src="<?= $user->getAvatar() ?? '/images/default-avatar.png' ?>" 
-                                 alt="User avatar">
-                            <span class="font-medium"><?= htmlspecialchars($user->getUsername()) ?></span>
-                            <i class="fas fa-chevron-down chevron"></i>
+                            <div class="flex items-center">
+                                <?php
+                                $avatarUrl = $user->getAvatar();
+                                ?>
+                                <img src="<?= $avatarUrl ?>" 
+                                     alt="User avatar"
+                                     class="w-8 h-8 rounded-full object-cover border border-gray-200 mr-2">
+                                <span class="font-medium"><?= htmlspecialchars($user->getUsername()) ?></span>
+                                <i class="fas fa-chevron-down chevron ml-1"></i>
+                            </div>
                         </button>
                         
                         <!-- Dropdown menu -->

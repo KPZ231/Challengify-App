@@ -40,8 +40,8 @@
                 <div class="md:w-1/3 p-6 bg-gray-50 border-r">
                     <div class="text-center">
                         <div class="relative inline-block mb-4">
-                            <?php if ($user->getAvatar()): ?>
-                                <img src="/uploads/avatars/<?= $user->getAvatar() ?>" 
+                            <?php if ($user->getAvatarFilename()): ?>
+                                <img src="<?= $user->getAvatar() ?>" 
                                      alt="Profile Picture" 
                                      class="w-32 h-32 rounded-full object-cover border-4 border-blue-500">
                             <?php else: ?>

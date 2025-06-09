@@ -110,15 +110,27 @@ class User
         $this->updatedAt = new \DateTime();
     }
 
-    public function getAvatar(): ?string
+    public function getAvatar(): string
     {
-        return $this->avatar;
+        if ($this->avatar) {
+            return '/uploads/avatars/' . $this->avatar;
+        }
+        
+        return '/images/default-avatar.svg';
     }
 
     public function setAvatar(?string $avatar): void
     {
         $this->avatar = $avatar;
         $this->updatedAt = new \DateTime();
+    }
+
+    /**
+     * Get the raw avatar filename without path
+     */
+    public function getAvatarFilename(): ?string
+    {
+        return $this->avatar;
     }
 
     public function getCreatedAt(): \DateTime

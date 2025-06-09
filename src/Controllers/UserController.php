@@ -194,14 +194,14 @@ class UserController
                 [
                     'allowedTypes' => ['image/jpeg', 'image/png', 'image/gif'],
                     'maxFileSize' => 2 * 1024 * 1024, // 2MB
-                    'directory' => 'public/uploads/avatars'
+                    'directory' => __DIR__ . '/../../public/uploads/avatars'
                 ]
             );
             
             // Delete old avatar if exists
-            $oldAvatar = $user->getAvatar();
-            if ($oldAvatar && file_exists('public/uploads/avatars/' . $oldAvatar)) {
-                unlink('public/uploads/avatars/' . $oldAvatar);
+            $oldAvatar = $user->getAvatarFilename();
+            if ($oldAvatar && file_exists(__DIR__ . '/../../public/uploads/avatars/' . $oldAvatar)) {
+                unlink(__DIR__ . '/../../public/uploads/avatars/' . $oldAvatar);
             }
             
             // Update user avatar in database
