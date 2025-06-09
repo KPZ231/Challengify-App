@@ -21,6 +21,37 @@
 
 <main class="container mx-auto px-4 py-12">
     <div class="max-w-3xl mx-auto">
+        <?php if (isset($_GET['success'])): ?>
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6" role="alert">
+            <strong class="font-bold">Success!</strong>
+            <span class="block sm:inline"> Your message has been sent. We'll get back to you soon!</span>
+        </div>
+        <?php endif; ?>
+        
+        <?php if (isset($_GET['error'])): ?>
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
+            <strong class="font-bold">Error!</strong>
+            <span class="block sm:inline">
+                <?php 
+                $error = $_GET['error'];
+                switch ($error) {
+                    case 'invalid_token':
+                        echo 'Security token validation failed. Please try again.';
+                        break;
+                    case 'missing_fields':
+                        echo 'Please fill in all required fields.';
+                        break;
+                    case 'invalid_email':
+                        echo 'Please enter a valid email address.';
+                        break;
+                    default:
+                        echo 'An error occurred. Please try again.';
+                }
+                ?>
+            </span>
+        </div>
+        <?php endif; ?>
+        
         <div class="bg-white rounded-lg shadow-lg p-8">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                 <div>
@@ -61,6 +92,9 @@
             <div class="border-t pt-8">
                 <h3 class="text-xl font-semibold mb-6">Send us a Message</h3>
                 <form action="/contact/submit" method="POST">
+                    <!-- CSRF Token -->
+                    <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
+                    
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
                             <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Name</label>

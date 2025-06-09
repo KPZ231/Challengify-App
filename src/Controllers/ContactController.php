@@ -7,6 +7,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Laminas\Diactoros\Response;
 use Kpzsproductions\Challengify\Services\SecurityService;
 use Kpzsproductions\Challengify\Models\User;
+use Kpzsproductions\Challengify\Models\Contact;
 
 
 class ContactController
@@ -88,15 +89,34 @@ class ContactController
             return $response;
         }
         
-        // Here you would typically:
-        // 1. Store the message in the database
-        // 2. Send an email notification
-        // For demonstration purposes, we'll just redirect with success
-        
-        // TODO: Store message in database and/or send email
-        
-        // Redirect with success message
-        $response = new Response\RedirectResponse('/contact?success=true');
-        return $response;
+        try {
+            // Get the client IP address
+            $ip = $request->getServerParams()['REMOTE_ADDR'] ?? '0.0.0.0';
+            
+            // Create new contact message in the database
+            Contact::create(
+                $formData['name'],
+                $formData['email'],
+                $formData['subject'],
+                $formData['message'],
+                $ip
+            );
+            
+            // TODO: Send email notification to admin (optional)
+            
+            // Regenerate CSRF token to prevent form resubmission
+            $this->securityService->generateToken();
+            
+            // Redirect with success message
+            $response = new Response\RedirectResponse('/contact?success=true');
+            return $response;
+        } catch (\Exception $e) {
+            // Log the error
+            error_log('Error saving contact form: ' . $e->getMessage());
+            
+            // Redirect with generic error message
+            $response = new Response\RedirectResponse('/contact?error=server_error');
+            return $response;
+        }
     }
 }

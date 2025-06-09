@@ -59,8 +59,8 @@
         
         // Function to create and setup WebSocket
         function setupWebSocket() {
-            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsUrl = `${protocol}//${window.location.host}/ws/console`;
+            // Connect directly to port 8080
+            const wsUrl = 'ws://localhost:8080';
             
             try {
                 socket = new WebSocket(wsUrl);

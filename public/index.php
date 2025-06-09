@@ -145,6 +145,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (RouteCollector $r) {
 
     $r->addRoute('GET', '/about', [AboutController::class, 'index']);   
     $r->addRoute('GET', '/contact', [ContactController::class, 'index']);
+    $r->addRoute('POST', '/contact/submit', [ContactController::class, 'submit']);
 
     // Legal routes
     $r->addRoute('GET', '/cookie-policy', function() {
@@ -216,6 +217,14 @@ switch ($routeInfo[0]) {
             $queue[] = new RateLimitMiddleware(
                 $container->get(RateLimiterService::class),
                 'submissions'
+            );
+        }
+        
+        // Add rate limiting for contact form
+        if ($request->getUri()->getPath() === '/contact/submit') {
+            $queue[] = new RateLimitMiddleware(
+                $container->get(RateLimiterService::class),
+                'contact'
             );
         }
         
