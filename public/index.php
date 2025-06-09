@@ -11,16 +11,19 @@ use Kpzsproductions\Challengify\Controllers\HomeController;
 use Kpzsproductions\Challengify\Controllers\AuthController;
 use Kpzsproductions\Challengify\Controllers\ChallengesController;
 use Kpzsproductions\Challengify\Controllers\UserController;
+use Kpzsproductions\Challengify\Controllers\AdminController;
 use Kpzsproductions\Challengify\Middleware\JwtMiddleware;
 use Kpzsproductions\Challengify\Middleware\RateLimitMiddleware;
 use Kpzsproductions\Challengify\Middleware\InputSanitizationMiddleware;
 use Kpzsproductions\Challengify\Middleware\SessionAuthMiddleware;
 use Kpzsproductions\Challengify\Middleware\AuthMiddleware;
+use Kpzsproductions\Challengify\Middleware\AdminMiddleware;
 use Kpzsproductions\Challengify\Services\JwtService;
 use Kpzsproductions\Challengify\Services\SecurityService;
 use Kpzsproductions\Challengify\Services\RateLimiterService;
 use Kpzsproductions\Challengify\Services\CacheService;
 use Kpzsproductions\Challengify\Services\FileUploadService;
+use Kpzsproductions\Challengify\Services\WebSocketService;
 use Medoo\Medoo;
 use DI\ContainerBuilder;
 use Kpzsproductions\Challengify\Models\User;
@@ -68,11 +71,17 @@ $containerBuilder->addDefinitions([
     AuthMiddleware::class => function($c) {
         return new AuthMiddleware($c->get(User::class));
     },
+    AdminMiddleware::class => function() {
+        return new AdminMiddleware();
+    },
+    WebSocketService::class => function() {
+        return new WebSocketService();
+    },
     // Add User model definition
     User::class => function() {
         // Create a guest/default user for non-authenticated requests
         return new User(
-            0,                  // default id
+            '00000000-0000-0000-0000-000000000000', // default id as UUID string
             'guest',            // default username
             'guest@example.com', // default email
             '',                 // empty password for guest
@@ -109,6 +118,19 @@ $dispatcher = FastRoute\simpleDispatcher(function (RouteCollector $r) {
     $r->addRoute('GET', '/profile', [UserController::class, 'profile']);
     $r->addRoute('POST', '/profile/update-avatar', [UserController::class, 'updateAvatar']);
     $r->addRoute('POST', '/profile/update-username', [UserController::class, 'updateUsername']);
+    
+    // Admin routes
+    $r->addRoute('GET', '/admin', [AdminController::class, 'dashboard']);
+    $r->addRoute('GET', '/admin/challenges', [AdminController::class, 'challenges']);
+    $r->addRoute('GET', '/admin/challenges/create', [AdminController::class, 'createChallengeForm']);
+    $r->addRoute('POST', '/admin/challenges/create', [AdminController::class, 'createChallenge']);
+    $r->addRoute('GET', '/admin/challenges/edit/{id:[^/]+}', [AdminController::class, 'editChallengeForm']);
+    $r->addRoute('POST', '/admin/challenges/update/{id:[^/]+}', [AdminController::class, 'updateChallenge']);
+    $r->addRoute('POST', '/admin/challenges/delete/{id:[^/]+}', [AdminController::class, 'deleteChallenge']);
+    $r->addRoute('GET', '/admin/users', [AdminController::class, 'users']);
+    $r->addRoute('POST', '/admin/users/role/{id:[^/]+}', [AdminController::class, 'updateUserRole']);
+    $r->addRoute('GET', '/admin/logs', [AdminController::class, 'logs']);
+    $r->addRoute('GET', '/admin/console', [AdminController::class, 'console']);
 });
 
 // Dispatch the request
@@ -166,6 +188,11 @@ switch ($routeInfo[0]) {
             $queue[] = $container->get(AuthMiddleware::class);
         }
         
+        // Add AdminMiddleware for admin routes
+        if (strpos($request->getUri()->getPath(), '/admin') === 0) {
+            $queue[] = $container->get(AdminMiddleware::class);
+        }
+        
         // Add JWT middleware for API routes
         if (strpos($request->getUri()->getPath(), '/api/') === 0 && 
             !in_array($request->getUri()->getPath(), ['/api/login', '/api/register'])) {
@@ -182,13 +209,25 @@ switch ($routeInfo[0]) {
                 [$controllerName, $method] = $handler;
                 $controller = $container->get($controllerName);
                 
-                if (empty($vars)) {
-                    return $controller->$method($request);
-                } else {
-                    return $controller->$method($request, $vars);
+                $response = empty($vars) ? 
+                    $controller->$method($request) : 
+                    $controller->$method($request, $vars);
+                
+                // Add security headers to all responses
+                if ($response instanceof Response) {
+                    $response = addSecurityHeaders($response);
                 }
+                
+                return $response;
             } else {
-                return $handler($request, $vars);
+                $response = $handler($request, $vars);
+                
+                // Add security headers to all responses
+                if ($response instanceof Response) {
+                    $response = addSecurityHeaders($response);
+                }
+                
+                return $response;
             }
         };
         
@@ -198,20 +237,39 @@ switch ($routeInfo[0]) {
         break;
 }
 
-// Send the response
-(function (Response $response) {
-    $statusCode = $response->getStatusCode();
+// Output the response
+if (isset($response)) {
+    $status = $response->getStatusCode();
+    $headers = $response->getHeaders();
+    
+    // Send status code
+    header(sprintf(
+        'HTTP/%s %s %s',
+        $response->getProtocolVersion(),
+        $status,
+        $response->getReasonPhrase()
+    ));
     
     // Send headers
-    foreach ($response->getHeaders() as $name => $values) {
+    foreach ($headers as $name => $values) {
         foreach ($values as $value) {
             header(sprintf('%s: %s', $name, $value), false);
         }
     }
     
-    // Send status code
-    http_response_code($statusCode);
-    
-    // Send body
+    // Output body
     echo $response->getBody();
-})($response); 
+}
+
+/**
+ * Add security headers to response
+ */
+function addSecurityHeaders(Response $response): Response
+{
+    return $response
+        ->withHeader('X-Content-Type-Options', 'nosniff')
+        ->withHeader('X-Frame-Options', 'DENY')
+        ->withHeader('X-XSS-Protection', '1; mode=block')
+        ->withHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
+        ->withHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' ws: wss:");
+} 

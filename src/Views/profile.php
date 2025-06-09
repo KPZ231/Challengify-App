@@ -106,39 +106,48 @@
                         <div class="mt-8">
                             <h3 class="text-lg font-semibold mb-4">Update Profile</h3>
                             
-                            <div class="mb-6">
+                            <div class="mb-6 bg-white rounded-md p-4 shadow-sm">
                                 <h4 class="text-md font-medium mb-2">Change Avatar</h4>
-                                <form action="/profile/update-avatar" method="post" enctype="multipart/form-data">
+                                <div class="text-xs text-gray-500 mb-3">
+                                    <p class="mb-1"><i class="fas fa-info-circle mr-1 text-blue-500"></i> Only image files allowed (jpg, png, gif, webp)</p>
+                                    <p class="mb-1"><i class="fas fa-info-circle mr-1 text-blue-500"></i> Maximum size: 2MB</p>
+                                </div>
+                                <form action="/profile/update-avatar" method="post" enctype="multipart/form-data" class="bg-gray-50 p-3 rounded-md border border-gray-200">
                                     <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                                     <div class="flex items-center justify-center">
-                                        <label class="block">
+                                        <label class="block w-full">
                                             <span class="sr-only">Choose profile photo</span>
-                                            <input type="file" name="avatar" class="block w-full text-sm text-gray-500
+                                            <input type="file" name="avatar" accept=".jpg,.jpeg,.png,.gif,.webp" 
+                                                class="block w-full text-sm text-gray-500
                                                 file:mr-4 file:py-2 file:px-4 file:rounded-full
                                                 file:border-0 file:text-sm file:font-semibold
                                                 file:bg-blue-50 file:text-blue-700
                                                 hover:file:bg-blue-100">
                                         </label>
                                     </div>
-                                    <button type="submit" class="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 w-full">
-                                        Upload New Avatar
-                                    </button>
+                                    <div class="mt-3 flex justify-end">
+                                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <i class="fas fa-upload mr-1"></i> Upload New Avatar
+                                        </button>
+                                    </div>
                                 </form>
                             </div>
                             
-                            <div class="mb-6">
+                            <div class="mb-6 bg-white rounded-md p-4 shadow-sm">
                                 <h4 class="text-md font-medium mb-2">Change Username</h4>
-                                <p class="text-xs text-gray-500 mb-2">You can change your username <?= 3 - $usernameChangeCount ?> more times</p>
-                                <form action="/profile/update-username" method="post">
+                                <p class="text-xs text-gray-500 mb-3"><i class="fas fa-info-circle mr-1 text-blue-500"></i> You can change your username <?= 3 - $usernameChangeCount ?> more times</p>
+                                <form action="/profile/update-username" method="post" class="bg-gray-50 p-3 rounded-md border border-gray-200">
                                     <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                                     <input type="text" name="username" placeholder="New username" 
                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                            <?= $usernameChangeCount >= 3 ? 'disabled' : '' ?>>
-                                    <button type="submit" 
-                                            class="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 w-full disabled:bg-gray-400"
-                                            <?= $usernameChangeCount >= 3 ? 'disabled' : '' ?>>
-                                        Update Username
-                                    </button>
+                                    <div class="mt-3 flex justify-end">
+                                        <button type="submit" 
+                                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-400"
+                                                <?= $usernameChangeCount >= 3 ? 'disabled' : '' ?>>
+                                            <i class="fas fa-edit mr-1"></i> Update Username
+                                        </button>
+                                    </div>
                                 </form>
                             </div>
                         </div>

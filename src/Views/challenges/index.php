@@ -52,8 +52,8 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="challenges-grid">
                     <?php foreach ($challenges as $challenge): ?>
                         <div class="ch-card shadow-md overflow-hidden">
-                            <?php if ($challenge->getImage()): ?>
-                                <img src="<?= e($challenge->getImage()) ?>" alt="<?= e($challenge->getTitle()) ?>" class="w-full h-48 object-cover">
+                            <?php if ($challenge['image']): ?>
+                                <img src="<?= e($challenge['image']) ?>" alt="<?= e($challenge['title']) ?>" class="w-full h-48 object-cover">
                             <?php else: ?>
                                 <div class="w-full h-48 bg-blue-100 flex items-center justify-center">
                                     <i class="fas fa-trophy text-blue-300 text-4xl"></i>
@@ -65,26 +65,26 @@
                                     <span class="ch-badge bg-blue-100 text-blue-600">
                                         <?php 
                                         foreach ($categories as $category) {
-                                            if ($category->getId() === $challenge->getCategoryId()) {
+                                            if ($category->getId() === $challenge['category_id']) {
                                                 echo e($category->getName());
                                                 break;
                                             }
                                         }
                                         ?>
                                     </span>
-                                    <span class="ch-badge <?= $challenge->getDifficulty() === 'easy' ? 'bg-green-100 text-green-600' : ($challenge->getDifficulty() === 'medium' ? 'bg-yellow-100 text-yellow-600' : 'bg-red-100 text-red-600') ?>">
-                                        <?= ucfirst(e($challenge->getDifficulty())) ?>
+                                    <span class="ch-badge <?= $challenge['difficulty'] === 'easy' ? 'bg-green-100 text-green-600' : ($challenge['difficulty'] === 'medium' ? 'bg-yellow-100 text-yellow-600' : 'bg-red-100 text-red-600') ?>">
+                                        <?= ucfirst(e($challenge['difficulty'])) ?>
                                     </span>
                                 </div>
                                 
-                                <h3 class="text-xl font-semibold mb-2"><?= e($challenge->getTitle()) ?></h3>
-                                <p class="text-gray-600 mb-4"><?= truncate(e($challenge->getDescription()), 120) ?></p>
+                                <h3 class="text-xl font-semibold mb-2"><?= e($challenge['title']) ?></h3>
+                                <p class="text-gray-600 mb-4"><?= truncate(e($challenge['description']), 120) ?></p>
                                 
                                 <div class="flex justify-between items-center">
                                     <div class="text-sm text-gray-500">
-                                        <span><i class="far fa-calendar-alt mr-1"></i>Ends: <?= formatDate($challenge->getEndDate()->format('Y-m-d H:i:s'), 'M j, Y') ?></span>
+                                        <span><i class="far fa-calendar-alt mr-1"></i>Ends: <?= formatDate($challenge['end_date'], 'M j, Y') ?></span>
                                     </div>
-                                    <a href="/challenges/<?= $challenge->getId() ?>" class="ch-btn ch-btn-sm ch-btn-primary">View Challenge</a>
+                                    <a href="/challenges/<?= $challenge['id'] ?>" class="ch-btn ch-btn-sm ch-btn-primary">View Challenge</a>
                                 </div>
                             </div>
                         </div>
@@ -250,30 +250,28 @@
                 });
             }
             
-            // Add event listeners for category links
+            // Add event listeners to category links for AJAX loading
             categoryLinks.forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
-                    loadChallenges(this.getAttribute('href'));
                     
-                    // Update active category
-                    document.querySelectorAll('.ch-badge').forEach(badge => {
-                        badge.classList.remove('bg-blue-600', 'text-white');
-                        badge.classList.add('bg-blue-100', 'text-blue-600', 'hover:bg-blue-200');
-                    });
+                    // Update active class
+                    categoryLinks.forEach(l => l.classList.remove('bg-blue-600', 'text-white'));
+                    categoryLinks.forEach(l => l.classList.add('bg-blue-100', 'text-blue-600', 'hover:bg-blue-200'));
                     this.classList.remove('bg-blue-100', 'text-blue-600', 'hover:bg-blue-200');
                     this.classList.add('bg-blue-600', 'text-white');
+                    
+                    loadChallenges(this.getAttribute('href'));
                 });
             });
             
-            // Add event listeners for pagination links
+            // Add event listeners to pagination links for AJAX loading
             paginationLinks.forEach(link => {
                 link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    loadChallenges(this.getAttribute('href'));
-                    
-                    // Scroll to top of challenges container
-                    document.querySelector('.challenges-container').scrollIntoView({ behavior: 'smooth' });
+                    if (this.getAttribute('href')) {
+                        e.preventDefault();
+                        loadChallenges(this.getAttribute('href'));
+                    }
                 });
             });
         });

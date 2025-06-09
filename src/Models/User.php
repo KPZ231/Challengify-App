@@ -10,7 +10,7 @@ use Kpzsproductions\Challengify\Services\Database;
 
 class User
 {
-    private int $id;
+    private string $id;
     private string $username;
     private string $email;
     private string $password;
@@ -21,7 +21,7 @@ class User
     private bool $isLoggedIn = false;
 
     public function __construct(
-        int $id,
+        string $id,
         string $username,
         string $email, 
         string $password,
@@ -40,7 +40,7 @@ class User
         $this->updatedAt = $updatedAt ?? new \DateTime();
     }
 
-    public static function find(int $id): ?self
+    public static function find(string $id): ?self
     {
         $db = Database::getInstance();
         $user = $db->get('users', '*', ['id' => $id]);
@@ -50,7 +50,7 @@ class User
         }
 
         return new self(
-            (int)$user['id'],
+            $user['id'],
             $user['username'],
             $user['email'],
             $user['password'],
@@ -61,7 +61,7 @@ class User
         );
     }
 
-    public function getId(): int
+    public function getId(): string
     {
         return $this->id;
     }

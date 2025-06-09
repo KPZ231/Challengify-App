@@ -42,8 +42,20 @@ class JwtMiddleware implements MiddlewareInterface
             ], 401);
         }
         
-        // Extract user data from token
+        // Extract user data from token and add to request attributes
         $userData = (array) $payload->data;
+        
+        // Verify user data contains minimal required fields
+        if (!isset($userData['id']) || !isset($userData['username']) || !isset($userData['email'])) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Unauthorized: Invalid token payload'
+            ], 401);
+        }
+        
+        // Add user data to request attributes
+        $request = $request->withAttribute('jwt_user', $userData);
+        $request = $request->withAttribute('authenticated', true);
                   
         return $handler->handle($request);
     }

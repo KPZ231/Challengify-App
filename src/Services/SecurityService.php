@@ -23,7 +23,7 @@ class SecurityService
     }
 
     /**
-     * Sanitize input data to prevent XSS
+     * Sanitize input data to prevent XSS with enhanced protections
      */
     public function sanitizeInput(mixed $data): mixed
     {
@@ -35,11 +35,35 @@ class SecurityService
         }
         
         if (is_string($data)) {
-            // Remove HTML tags and encode special characters
-            return htmlspecialchars(strip_tags($data), ENT_QUOTES, 'UTF-8');
+            // First normalize the data to prevent Unicode attacks
+            $data = $this->normalizeUnicode($data);
+            
+            // Remove all HTML tags and encode special characters
+            $data = strip_tags($data);
+            
+            // Block script injections in CSS properties or event handlers
+            $data = preg_replace('/javascript\s*:/i', '', $data);
+            $data = preg_replace('/on\w+\s*=/i', '', $data);
+            $data = preg_replace('/expression\s*\(/i', '', $data);
+            
+            // Encode special characters to prevent HTML injection
+            $data = htmlspecialchars($data, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            
+            return $data;
         }
         
         return $data;
+    }
+    
+    /**
+     * Normalize Unicode to prevent homograph attacks
+     */
+    private function normalizeUnicode(string $string): string
+    {
+        if (function_exists('normalizer_normalize')) {
+            return normalizer_normalize($string, \Normalizer::FORM_C) ?: $string;
+        }
+        return $string;
     }
 
     /**

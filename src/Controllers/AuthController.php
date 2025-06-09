@@ -11,6 +11,7 @@ use Kpzsproductions\Challengify\Services\SecurityService;
 use Kpzsproductions\Challengify\Services\RateLimiterService;
 use Kpzsproductions\Challengify\Services\JwtService;
 use Medoo\Medoo;
+use Ramsey\Uuid\Uuid;
 
 class AuthController
 {
@@ -141,7 +142,7 @@ class AuthController
         
         // Set up the User object with the logged-in user data
         $userObj = new User(
-            (int)$user['id'],
+            $user['id'],
             $user['username'],
             $user['email'],
             '',  // Don't store the password in the session
@@ -153,7 +154,7 @@ class AuthController
         $userObj->setLoggedIn(true);
         
         // Create session
-        $_SESSION['user_id'] = (int)$user['id'];
+        $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_role'] = $user['role'];
         $_SESSION['user_logged_in'] = true;
         $_SESSION['last_activity'] = time();
@@ -161,7 +162,7 @@ class AuthController
         // Generate JWT token for API access if needed
         if ($rememberMe) {
             $token = $this->jwtService->generate([
-                'user_id' => (int)$user['id'],
+                'user_id' => $user['id'],
                 'email' => $user['email'],
                 'role' => $user['role']
             ]);
@@ -195,6 +196,9 @@ class AuthController
     {
         // Start session if not already started
         $this->startSession();
+        
+        // Regenerate session ID for security on registration attempts
+        session_regenerate_id(true);
         
         $ip = $request->getServerParams()['REMOTE_ADDR'] ?? '0.0.0.0';
         
@@ -251,8 +255,12 @@ class AuthController
         // Hash password
         $hashedPassword = $this->securityService->hashPassword($password);
         
+        // Generate a UUID for the new user
+        $userId = Uuid::uuid4()->toString();
+        
         // Insert new user
         $result = $this->db->insert('users', [
+            'id' => $userId,
             'username' => $username,
             'email' => $email,
             'password' => $hashedPassword,
@@ -300,6 +308,23 @@ class AuthController
             );
         }
         
+        // Clear the session cookie
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(), 
+                '', 
+                [
+                    'expires' => time() - 3600,
+                    'path' => $params['path'],
+                    'domain' => $params['domain'],
+                    'secure' => $params['secure'],
+                    'httponly' => $params['httponly'],
+                    'samesite' => 'Strict'
+                ]
+            );
+        }
+        
         // Destroy the session
         session_destroy();
         
@@ -320,6 +345,22 @@ class AuthController
             ini_set('session.cookie_httponly', 1);
             ini_set('session.cookie_secure', 1);
             ini_set('session.cookie_samesite', 'Strict');
+            
+            // Configure secure session cookie parameters
+            $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+            $httpOnly = true;
+            $sameSite = 'Strict';
+            $path = '/';
+            
+            // Set secure cookie parameters
+            session_set_cookie_params([
+                'lifetime' => 7200, // 2 hours
+                'path' => $path, 
+                'domain' => '', // current domain
+                'secure' => $secure,
+                'httponly' => $httpOnly,
+                'samesite' => $sameSite
+            ]);
             
             session_start();
         }

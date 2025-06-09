@@ -87,13 +87,34 @@ function setFlash(string $type, string $message): void
  */
 function getFlash(string $type): ?string
 {
-    if (isset($_SESSION['flash'][$type])) {
-        $message = $_SESSION['flash'][$type];
-        unset($_SESSION['flash'][$type]);
-        return $message;
+    if (!isset($_SESSION['flash'][$type])) {
+        return null;
     }
     
-    return null;
+    $message = $_SESSION['flash'][$type];
+    unset($_SESSION['flash'][$type]);
+    
+    return $message;
+}
+
+/**
+ * Generate a CSRF token
+ */
+function csrf_token(): string
+{
+    if (!isset($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    
+    return $_SESSION['csrf_token'];
+}
+
+/**
+ * Verify CSRF token
+ */
+function verify_csrf_token(string $token): bool
+{
+    return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
 }
 
 /**

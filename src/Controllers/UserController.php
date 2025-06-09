@@ -188,15 +188,25 @@ class UserController
         }
         
         try {
-            // Upload file with avatar-specific settings
+            // Enhanced security settings for avatar uploads
             $fileData = $this->fileUploadService->upload(
                 $uploadedFiles['avatar'], 
                 [
-                    'allowedTypes' => ['image/jpeg', 'image/png', 'image/gif'],
+                    'allowedTypes' => ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
                     'maxFileSize' => 2 * 1024 * 1024, // 2MB
                     'directory' => __DIR__ . '/../../public/uploads/avatars'
                 ]
             );
+            
+            // Additional image validation - verify it's actually an image
+            $filePath = $fileData['path'];
+            if (!$this->validateImage($filePath)) {
+                // Remove the suspicious file
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+                throw new \RuntimeException('The uploaded file is not a valid image.');
+            }
             
             // Delete old avatar if exists
             $oldAvatar = $user->getAvatarFilename();
@@ -223,6 +233,32 @@ class UserController
         }
         
         return new RedirectResponse('/profile');
+    }
+    
+    /**
+     * Validate that a file is actually an image by using getimagesize()
+     */
+    private function validateImage(string $filePath): bool
+    {
+        if (!file_exists($filePath)) {
+            return false;
+        }
+        
+        // Use PHP's getimagesize to verify it's actually an image
+        $imageInfo = @getimagesize($filePath);
+        if ($imageInfo === false) {
+            return false;
+        }
+        
+        // Verify image type is allowed
+        $allowedTypes = [
+            IMAGETYPE_JPEG,
+            IMAGETYPE_PNG,
+            IMAGETYPE_GIF,
+            IMAGETYPE_WEBP
+        ];
+        
+        return in_array($imageInfo[2], $allowedTypes);
     }
     
     /**

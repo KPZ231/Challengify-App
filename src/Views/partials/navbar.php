@@ -1,3 +1,8 @@
+<?php
+$isLoggedIn = isset($_SESSION['user_logged_in']) && $_SESSION['user_logged_in'];
+$isAdmin = $isLoggedIn && isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
+?>
+
 <nav class="ch-navbar bg-white shadow-lg">
     <div class="container mx-auto px-4">
         <div class="flex justify-between items-center py-3">
@@ -14,6 +19,11 @@
                     <a href="/current-challenge" class="ch-nav-link hover:text-blue-700">
                         <i class="fas fa-trophy mr-1"></i>Current Challenge
                     </a>
+                    <?php if ($isAdmin): ?>
+                    <a href="/admin" class="ch-nav-link hover:text-blue-700">
+                        <i class="fas fa-cog mr-1"></i>Admin Panel
+                    </a>
+                    <?php endif; ?>
                 </div>
             </div>
 
