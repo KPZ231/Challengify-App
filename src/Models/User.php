@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Kpzsproductions\Challengify\Models;
 
+use Medoo\Medoo;
+use Kpzsproductions\Challengify\Services\Database;
+
+
 class User
 {
     private int $id;
@@ -34,6 +38,27 @@ class User
         $this->avatar = $avatar;
         $this->createdAt = $createdAt ?? new \DateTime();
         $this->updatedAt = $updatedAt ?? new \DateTime();
+    }
+
+    public static function find(int $id): ?self
+    {
+        $db = Database::getInstance();
+        $user = $db->get('users', '*', ['id' => $id]);
+
+        if (!$user) {
+            return null;
+        }
+
+        return new self(
+            (int)$user['id'],
+            $user['username'],
+            $user['email'],
+            $user['password'],
+            $user['role'],
+            $user['avatar'],
+            new \DateTime($user['created_at']),
+            new \DateTime($user['updated_at'])
+        );
     }
 
     public function getId(): int

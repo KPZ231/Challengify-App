@@ -33,14 +33,24 @@ class FileUploadService
         }
     }
 
-    public function upload(UploadedFileInterface $file): array
+    public function upload(UploadedFileInterface $file, array $options = []): array
     {
-        $this->validateFile($file);
+        // Override defaults with provided options
+        $directory = $options['directory'] ?? $this->uploadDir;
+        $allowedTypes = $options['allowedTypes'] ?? $this->allowedTypes;
+        $maxFileSize = $options['maxFileSize'] ?? $this->maxFileSize;
+        
+        // Create directory if it doesn't exist
+        if (!is_dir($directory)) {
+            mkdir($directory, 0755, true);
+        }
+        
+        $this->validateFile($file, $maxFileSize, $allowedTypes);
         
         // Generate unique filename
         $extension = $this->getExtension($file->getClientFilename() ?? '');
         $filename = Uuid::uuid4()->toString() . '.' . $extension;
-        $path = $this->uploadDir . '/' . $filename;
+        $path = $directory . '/' . $filename;
         
         // Move uploaded file
         $file->moveTo($path);
@@ -53,17 +63,20 @@ class FileUploadService
         ];
     }
 
-    private function validateFile(UploadedFileInterface $file): void
+    private function validateFile(UploadedFileInterface $file, int $maxFileSize = null, array $allowedTypes = null): void
     {
+        $maxFileSize = $maxFileSize ?? $this->maxFileSize;
+        $allowedTypes = $allowedTypes ?? $this->allowedTypes;
+        
         // Check file size
-        if ($file->getSize() > $this->maxFileSize) {
-            throw new RuntimeException('File too large. Maximum size is ' . $this->formatBytes($this->maxFileSize));
+        if ($file->getSize() > $maxFileSize) {
+            throw new RuntimeException('File too large. Maximum size is ' . $this->formatBytes($maxFileSize));
         }
         
         // Check file type
         $mediaType = $file->getClientMediaType();
-        if (!in_array($mediaType, $this->allowedTypes)) {
-            throw new RuntimeException('Invalid file type. Allowed types: ' . implode(', ', $this->allowedTypes));
+        if (!in_array($mediaType, $allowedTypes)) {
+            throw new RuntimeException('Invalid file type. Allowed types: ' . implode(', ', $allowedTypes));
         }
         
         // Check for upload errors

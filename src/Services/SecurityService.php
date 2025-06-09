@@ -55,6 +55,21 @@ class SecurityService
      */
     public function generateToken(int $length = 32): string
     {
-        return bin2hex(random_bytes($length / 2));
+        if (!isset($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes($length / 2));
+        }
+        return $_SESSION['csrf_token'];
+    }
+    
+    /**
+     * Validate CSRF token against the one stored in session
+     */
+    public function validateToken(?string $token): bool
+    {
+        if (empty($token) || empty($_SESSION['csrf_token'])) {
+            return false;
+        }
+        
+        return hash_equals($_SESSION['csrf_token'], $token);
     }
 } 

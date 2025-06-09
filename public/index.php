@@ -9,10 +9,13 @@ use Laminas\Diactoros\Response;
 use FastRoute\RouteCollector;
 use Kpzsproductions\Challengify\Controllers\HomeController;
 use Kpzsproductions\Challengify\Controllers\AuthController;
+use Kpzsproductions\Challengify\Controllers\ChallengesController;
+use Kpzsproductions\Challengify\Controllers\UserController;
 use Kpzsproductions\Challengify\Middleware\JwtMiddleware;
 use Kpzsproductions\Challengify\Middleware\RateLimitMiddleware;
 use Kpzsproductions\Challengify\Middleware\InputSanitizationMiddleware;
 use Kpzsproductions\Challengify\Middleware\SessionAuthMiddleware;
+use Kpzsproductions\Challengify\Middleware\AuthMiddleware;
 use Kpzsproductions\Challengify\Services\JwtService;
 use Kpzsproductions\Challengify\Services\SecurityService;
 use Kpzsproductions\Challengify\Services\RateLimiterService;
@@ -62,6 +65,9 @@ $containerBuilder->addDefinitions([
     SessionAuthMiddleware::class => function($c) {
         return new SessionAuthMiddleware($c->get(Medoo::class), $c->get(User::class));
     },
+    AuthMiddleware::class => function($c) {
+        return new AuthMiddleware($c->get(User::class));
+    },
     // Add User model definition
     User::class => function() {
         // Create a guest/default user for non-authenticated requests
@@ -87,12 +93,22 @@ $dispatcher = FastRoute\simpleDispatcher(function (RouteCollector $r) {
     $r->addRoute('GET', '/login', [AuthController::class, 'loadLogin']);
     $r->addRoute('GET', '/register', [AuthController::class, 'loadRegister']);
     
+    // Challenges routes
+    $r->addRoute('GET', '/challenges', [ChallengesController::class, 'index']);
+    $r->addRoute('GET', '/challenges/{id:\d+}', [ChallengesController::class, 'show']);
+    $r->addRoute('POST', '/challenges/{id:\d+}/submit', [ChallengesController::class, 'submitEntry']);
+    
     // Add POST routes for form submissions
     $r->addRoute('POST', '/login', [AuthController::class, 'processLogin']);
     $r->addRoute('POST', '/register', [AuthController::class, 'processRegister']);
     
     // Add logout route
     $r->addRoute('GET', '/logout', [AuthController::class, 'logout']);
+    
+    // User profile routes
+    $r->addRoute('GET', '/profile', [UserController::class, 'profile']);
+    $r->addRoute('POST', '/profile/update-avatar', [UserController::class, 'updateAvatar']);
+    $r->addRoute('POST', '/profile/update-username', [UserController::class, 'updateUsername']);
 });
 
 // Dispatch the request
@@ -127,7 +143,7 @@ switch ($routeInfo[0]) {
         $queue[] = $container->get(InputSanitizationMiddleware::class);
         
         // Add rate limiting for login endpoint
-        if ($request->getUri()->getPath() === '/api/login') {
+        if ($request->getUri()->getPath() === '/login') {
             $queue[] = new RateLimitMiddleware(
                 $container->get(RateLimiterService::class),
                 'login'
@@ -135,21 +151,29 @@ switch ($routeInfo[0]) {
         }
         
         // Add rate limiting for submissions endpoint
-        if ($request->getUri()->getPath() === '/api/submissions') {
+        if (strpos($request->getUri()->getPath(), '/challenges/') === 0 && 
+            substr($request->getUri()->getPath(), -7) === '/submit') {
             $queue[] = new RateLimitMiddleware(
                 $container->get(RateLimiterService::class),
                 'submissions'
             );
         }
         
-        // // Add JWT middleware for protected routes
-        // if (strpos($request->getUri()->getPath(), '/api/') === 0 && 
-        //     !in_array($request->getUri()->getPath(), ['/api/login', '/api/register', '/api/challenges', '/api/challenges/'])) {
-        //     $queue[] = new JwtMiddleware(
-        //         $container->get(JwtService::class),
-        //         $container->get(User::class)
-        //     );
-        // }
+        // Add Auth middleware for protected routes
+        if (in_array($request->getUri()->getPath(), ['/profile', '/profile/update-avatar', '/profile/update-username']) || 
+            (strpos($request->getUri()->getPath(), '/challenges/') === 0 && 
+            substr($request->getUri()->getPath(), -7) === '/submit')) {
+            $queue[] = $container->get(AuthMiddleware::class);
+        }
+        
+        // Add JWT middleware for API routes
+        if (strpos($request->getUri()->getPath(), '/api/') === 0 && 
+            !in_array($request->getUri()->getPath(), ['/api/login', '/api/register'])) {
+            $queue[] = new JwtMiddleware(
+                $container->get(JwtService::class),
+                $container->get(User::class)
+            );
+        }
         
         // Add final handler
         $queue[] = function ($request, $next) use ($container, $handler, $vars) {
