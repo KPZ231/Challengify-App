@@ -62,15 +62,41 @@ function currentUser()
         return null;
     }
     
+    // Check if all required session data is available
+    if (!isset($_SESSION['user_id'])) {
+        return null;
+    }
+    
+    // Handle created_at and updated_at dates
+    $createdAt = null;
+    if (isset($_SESSION['created_at'])) {
+        // Convert timestamp to DateTime if it's an integer
+        if (is_int($_SESSION['created_at'])) {
+            $createdAt = new \DateTime('@' . $_SESSION['created_at']); // @ prefix for timestamps
+        } else {
+            $createdAt = new \DateTime($_SESSION['created_at']);
+        }
+    }
+    
+    $updatedAt = null;
+    if (isset($_SESSION['updated_at'])) {
+        // Convert timestamp to DateTime if it's an integer
+        if (is_int($_SESSION['updated_at'])) {
+            $updatedAt = new \DateTime('@' . $_SESSION['updated_at']);
+        } else {
+            $updatedAt = new \DateTime($_SESSION['updated_at']);
+        }
+    }
+    
     return new \Kpzsproductions\Challengify\Models\User(
         $_SESSION['user_id'],
-        $_SESSION['username'],
-        $_SESSION['email'],
-        $_SESSION['password'],
+        $_SESSION['username'] ?? 'User',
+        $_SESSION['email'] ?? 'user@example.com',
+        $_SESSION['password'] ?? '',
         $_SESSION['role'] ?? 'user',
         $_SESSION['avatar'] ?? null,
-        isset($_SESSION['created_at']) ? new \DateTime($_SESSION['created_at']) : null,
-        isset($_SESSION['updated_at']) ? new \DateTime($_SESSION['updated_at']) : null
+        $createdAt,
+        $updatedAt
     );
 }
 

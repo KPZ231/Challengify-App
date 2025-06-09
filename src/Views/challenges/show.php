@@ -20,16 +20,6 @@
                 <div class="w-full lg:w-2/3 mb-6 lg:mb-0">
                     <h1 class="text-3xl md:text-4xl font-bold mb-4"><?= e($challenge->getTitle()) ?></h1>
                     <div class="flex flex-wrap gap-3 mb-4">
-                        <span class="ch-badge bg-white text-blue-600">
-                            <?php 
-                            foreach ($categories as $category) {
-                                if ($category->getId() === $challenge->getCategoryId()) {
-                                    echo e($category->getName());
-                                    break;
-                                }
-                            }
-                            ?>
-                        </span>
                         <span class="ch-badge <?= $challenge->getDifficulty() === 'easy' ? 'bg-green-100 text-green-600' : ($challenge->getDifficulty() === 'medium' ? 'bg-yellow-100 text-yellow-600' : 'bg-red-100 text-red-600') ?>">
                             <?= ucfirst(e($challenge->getDifficulty())) ?>
                         </span>
@@ -222,6 +212,9 @@
                             <button id="edit-submission-btn" class="ch-btn ch-btn-outline-primary w-full">Edit My Submission</button>
                         <?php else: ?>
                             <form action="/challenges/<?= $challenge->getId() ?>/submit" method="POST" enctype="multipart/form-data">
+                                <!-- CSRF Protection -->
+                                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                                
                                 <div class="mb-4">
                                     <label for="title" class="block text-gray-700 font-medium mb-2">Title</label>
                                     <input type="text" id="title" name="title" class="form-input w-full rounded-md" value="<?= isset($old['title']) ? e($old['title']) : '' ?>" required>
@@ -249,7 +242,13 @@
                                 <div class="mb-6">
                                     <label for="submission_file" class="block text-gray-700 font-medium mb-2">Attachment (optional)</label>
                                     <input type="file" id="submission_file" name="submission_file" class="form-input w-full">
-                                    <p class="text-sm text-gray-500 mt-1">Upload an image, document, or other file related to your submission.</p>
+                                    <p class="text-sm text-gray-500 mt-1">Supported formats:</p>
+                                    <ul class="text-sm text-gray-500 list-disc ml-5 mt-1">
+                                        <li>Images: JPG, PNG, GIF, WebP</li>
+                                        <li>Documents: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, CSV, HTML</li>
+                                        <li>Videos: MP4, MPEG, MOV, AVI, WMV, WebM</li>
+                                    </ul>
+                                    <p class="text-sm text-gray-500 mt-1">Maximum file size: 15MB</p>
                                     <?php if (isset($errors['file'])): ?>
                                         <p class="text-red-500 text-sm mt-1"><?= $errors['file'] ?></p>
                                     <?php endif; ?>
@@ -297,87 +296,168 @@
                 </div>
             </div>
         </div>
+
+        <!-- User's submission -->
+        <?php if (isset($userSubmission)): ?>
+            <div class="bg-white rounded-lg p-6 shadow-md mb-10">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold">Your Submission</h3>
+                    <div>
+                        <button id="edit-submission-btn" class="ch-btn ch-btn-outline-primary mr-2">
+                            <i class="fas fa-edit mr-1"></i> Edit
+                        </button>
+                        <a href="/challenges/<?= $challenge->getId() ?>/download-submission" class="ch-btn ch-btn-outline-success">
+                            <i class="fas fa-download mr-1"></i> Download
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h4 class="text-lg font-medium mb-1"><?= e($userSubmission->getTitle()) ?></h4>
+                    <p class="text-gray-600 mb-3"><?= e($userSubmission->getDescription()) ?></p>
+                    <div class="prose max-w-none"><?= nl2br(e($userSubmission->getContent())) ?></div>
+                </div>
+                
+                <?php if ($userSubmission->getFilePath()): ?>
+                    <div class="mt-5 border-t pt-4">
+                        <h4 class="font-medium mb-2">Attached File</h4>
+                        <?php 
+                        $filePath = $userSubmission->getFilePath();
+                        $fileName = basename($filePath);
+                        $fileExt = pathinfo($filePath, PATHINFO_EXTENSION);
+                        $isImage = in_array(strtolower($fileExt), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                        $isVideo = in_array(strtolower($fileExt), ['mp4', 'webm', 'mov', 'avi']);
+                        $isPdf = strtolower($fileExt) === 'pdf';
+                        ?>
+                        
+                        <div class="mb-2">
+                            <span class="text-sm font-medium"><?= e($fileName) ?></span>
+                        </div>
+                        
+                        <div class="mt-2">
+                            <?php if ($isImage): ?>
+                                <div class="rounded-lg overflow-hidden border mb-2">
+                                    <img src="<?= e($filePath) ?>" alt="Submission preview" class="max-h-96 mx-auto">
+                                </div>
+                            <?php elseif ($isVideo): ?>
+                                <div class="rounded-lg overflow-hidden border mb-2">
+                                    <video controls class="max-h-96 w-full">
+                                        <source src="<?= e($filePath) ?>" type="video/<?= strtolower($fileExt) ?>">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                </div>
+                            <?php elseif ($isPdf): ?>
+                                <div class="rounded-lg overflow-hidden border mb-2 h-96">
+                                    <embed src="<?= e($filePath) ?>" type="application/pdf" class="w-full h-full">
+                                </div>
+                            <?php else: ?>
+                                <div class="flex items-center px-4 py-3 bg-gray-50 rounded-lg">
+                                    <i class="far fa-file-alt text-gray-500 text-2xl mr-3"></i>
+                                    <span>File attached: <a href="<?= e($filePath) ?>" class="text-blue-600 hover:underline" target="_blank"><?= e($fileName) ?></a></span>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <div class="mt-2 text-sm text-gray-500">
+                            Uploaded: <?= $userSubmission->getCreatedAt()->format('F j, Y \a\t g:i a') ?>
+                            <?php if ($userSubmission->getUpdatedAt()): ?>
+                                <span class="ml-2">(Updated: <?= $userSubmission->getUpdatedAt()->format('F j, Y \a\t g:i a') ?>)</span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+                
+                <div class="mt-4">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
+                        <?php if ($userSubmission->getStatus() === 'approved'): ?>
+                            bg-green-100 text-green-800
+                        <?php elseif ($userSubmission->getStatus() === 'rejected'): ?>
+                            bg-red-100 text-red-800
+                        <?php elseif ($userSubmission->getStatus() === 'draft'): ?>
+                            bg-gray-100 text-gray-800
+                        <?php else: ?>
+                            bg-blue-100 text-blue-800
+                        <?php endif; ?>
+                    ">
+                        Status: <?= ucfirst($userSubmission->getStatus()) ?>
+                    </span>
+                </div>
+            </div>
+        <?php endif; ?>
     </main>
 
     <!-- Footer -->
     <?php include __DIR__ . '/../partials/footer.php'; ?>
 
     <!-- Edit Submission Modal -->
-    <?php if ($userSubmission): ?>
-    <div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4">
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-2xl font-semibold">Edit Your Submission</h3>
-                    <button id="close-modal" class="text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
+    <?php if (isset($userSubmission)): ?>
+    <div id="edit-submission-modal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <h2 class="text-2xl font-bold mb-6">Edit Your Submission</h2>
+            
+            <?php if (isset($errors) && !empty($errors)): ?>
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                    <strong class="font-bold">Please fix the following errors:</strong>
+                    <ul class="list-disc ml-5 mt-1">
+                        <?php foreach ($errors as $error): ?>
+                            <li><?= e($error) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
+            
+            <form action="/challenges/<?= $challenge->getId() ?>/submit" method="POST" enctype="multipart/form-data">
+                <!-- CSRF Protection -->
+                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                
+                <div class="mb-4">
+                    <label for="edit-title" class="block text-gray-700 font-medium mb-2">Title</label>
+                    <input type="text" id="edit-title" name="title" class="form-input w-full rounded-md" value="<?= e($userSubmission->getTitle()) ?>" required>
                 </div>
                 
-                <form action="/challenges/<?= $challenge->getId() ?>/submit" method="POST" enctype="multipart/form-data">
-                    <div class="mb-4">
-                        <label for="edit-title" class="block text-gray-700 font-medium mb-2">Title</label>
-                        <input type="text" id="edit-title" name="title" class="form-input w-full rounded-md" value="<?= e($userSubmission->getTitle()) ?>" required>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label for="edit-description" class="block text-gray-700 font-medium mb-2">Description</label>
-                        <textarea id="edit-description" name="description" rows="3" class="form-textarea w-full rounded-md" required><?= e($userSubmission->getDescription()) ?></textarea>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label for="edit-content" class="block text-gray-700 font-medium mb-2">Content</label>
-                        <textarea id="edit-content" name="content" rows="5" class="form-textarea w-full rounded-md" required><?= e($userSubmission->getContent()) ?></textarea>
-                    </div>
-                    
-                    <div class="mb-6">
-                        <label for="edit-submission-file" class="block text-gray-700 font-medium mb-2">Attachment</label>
-                        <?php if ($userSubmission->getFilePath()): ?>
-                            <div class="mb-2">
-                                <span class="text-sm">Current file: <?= basename(e($userSubmission->getFilePath())) ?></span>
-                            </div>
-                        <?php endif; ?>
-                        <input type="file" id="edit-submission-file" name="submission_file" class="form-input w-full">
-                        <p class="text-sm text-gray-500 mt-1">Upload a new file to replace the existing one, or leave empty to keep the current file.</p>
-                    </div>
-                    
-                    <div class="flex justify-end gap-3">
-                        <button type="button" id="cancel-edit" class="ch-btn ch-btn-outline-secondary">Cancel</button>
-                        <button type="submit" class="ch-btn ch-btn-primary">Update Submission</button>
-                    </div>
-                </form>
-            </div>
+                <div class="mb-4">
+                    <label for="edit-description" class="block text-gray-700 font-medium mb-2">Description</label>
+                    <textarea id="edit-description" name="description" rows="3" class="form-textarea w-full rounded-md" required><?= e($userSubmission->getDescription()) ?></textarea>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="edit-content" class="block text-gray-700 font-medium mb-2">Content</label>
+                    <textarea id="edit-content" name="content" rows="5" class="form-textarea w-full rounded-md" required><?= e($userSubmission->getContent()) ?></textarea>
+                </div>
+                
+                <div class="mb-6">
+                    <label for="edit-submission-file" class="block text-gray-700 font-medium mb-2">Attachment</label>
+                    <?php if ($userSubmission->getFilePath()): ?>
+                        <div class="mb-2">
+                            <span class="text-sm">Current file: <?= basename(e($userSubmission->getFilePath())) ?></span>
+                            <?php 
+                            $fileExt = pathinfo($userSubmission->getFilePath(), PATHINFO_EXTENSION);
+                            $isImage = in_array(strtolower($fileExt), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                            
+                            if ($isImage): ?>
+                                <div class="mt-2 mb-3">
+                                    <img src="<?= e($userSubmission->getFilePath()) ?>" alt="Submission image" class="max-h-32 rounded">
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+                    <input type="file" id="edit-submission-file" name="submission_file" class="form-input w-full">
+                    <p class="text-sm text-gray-500 mt-1">Supported formats:</p>
+                    <ul class="text-sm text-gray-500 list-disc ml-5 mt-1">
+                        <li>Images: JPG, PNG, GIF, WebP</li>
+                        <li>Documents: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, CSV, HTML</li>
+                        <li>Videos: MP4, MPEG, MOV, AVI, WMV, WebM</li>
+                    </ul>
+                    <p class="text-sm text-gray-500 mt-1">Maximum file size: 15MB</p>
+                </div>
+                
+                <div class="flex justify-end gap-3">
+                    <button type="button" id="cancel-edit" class="ch-btn ch-btn-outline-secondary">Cancel</button>
+                    <button type="submit" class="ch-btn ch-btn-primary">Update Submission</button>
+                </div>
+            </form>
         </div>
     </div>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const editBtn = document.getElementById('edit-submission-btn');
-            const modal = document.getElementById('edit-modal');
-            const closeBtn = document.getElementById('close-modal');
-            const cancelBtn = document.getElementById('cancel-edit');
-            
-            editBtn.addEventListener('click', function() {
-                modal.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            });
-            
-            function closeModal() {
-                modal.classList.add('hidden');
-                document.body.style.overflow = '';
-            }
-            
-            closeBtn.addEventListener('click', closeModal);
-            cancelBtn.addEventListener('click', closeModal);
-            
-            // Close modal when clicking outside
-            modal.addEventListener('click', function(e) {
-                if (e.target === modal) {
-                    closeModal();
-                }
-            });
-        });
-    </script>
     <?php endif; ?>
     
     <!-- Voting Script -->
@@ -403,6 +483,55 @@
                     this.classList.add('text-blue-600');
                     this.disabled = true;
                 });
+            });
+        });
+    </script>
+
+    <!-- Bottom of the file, before closing body tag -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Submission modal
+            const submitBtn = document.getElementById('submit-btn');
+            const submitModal = document.getElementById('submit-modal');
+            const closeModalBtn = document.getElementById('close-modal');
+            
+            if (submitBtn && submitModal) {
+                submitBtn.addEventListener('click', function() {
+                    submitModal.classList.remove('hidden');
+                });
+            }
+            
+            if (closeModalBtn && submitModal) {
+                closeModalBtn.addEventListener('click', function() {
+                    submitModal.classList.add('hidden');
+                });
+            }
+            
+            // Edit submission modal
+            const editSubmissionBtn = document.getElementById('edit-submission-btn');
+            const editModal = document.getElementById('edit-submission-modal');
+            const cancelEditBtn = document.getElementById('cancel-edit');
+            
+            if (editSubmissionBtn && editModal) {
+                editSubmissionBtn.addEventListener('click', function() {
+                    editModal.classList.remove('hidden');
+                });
+            }
+            
+            if (cancelEditBtn && editModal) {
+                cancelEditBtn.addEventListener('click', function() {
+                    editModal.classList.add('hidden');
+                });
+            }
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', function(event) {
+                if (event.target === submitModal) {
+                    submitModal.classList.add('hidden');
+                }
+                if (event.target === editModal) {
+                    editModal.classList.add('hidden');
+                }
             });
         });
     </script>

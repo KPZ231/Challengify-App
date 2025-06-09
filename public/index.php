@@ -12,6 +12,7 @@ use Kpzsproductions\Challengify\Controllers\AuthController;
 use Kpzsproductions\Challengify\Controllers\ChallengesController;
 use Kpzsproductions\Challengify\Controllers\UserController;
 use Kpzsproductions\Challengify\Controllers\AdminController;
+use Kpzsproductions\Challengify\Controllers\ContactController;
 use Kpzsproductions\Challengify\Middleware\JwtMiddleware;
 use Kpzsproductions\Challengify\Middleware\RateLimitMiddleware;
 use Kpzsproductions\Challengify\Middleware\InputSanitizationMiddleware;
@@ -26,6 +27,7 @@ use Kpzsproductions\Challengify\Services\FileUploadService;
 use Kpzsproductions\Challengify\Services\WebSocketService;
 use Medoo\Medoo;
 use DI\ContainerBuilder;
+use Kpzsproductions\Challengify\Controllers\AboutController;
 use Kpzsproductions\Challengify\Models\User;
 use Relay\Relay;
 
@@ -88,6 +90,14 @@ $containerBuilder->addDefinitions([
             'guest'             // guest role
         );
     },
+    
+    // Controllers with dependencies
+    ChallengesController::class => function($c) {
+        return new ChallengesController(
+            $c->get(FileUploadService::class),
+            $c->get(SecurityService::class)
+        );
+    },
 ]);
 
 $container = $containerBuilder->build();
@@ -104,8 +114,9 @@ $dispatcher = FastRoute\simpleDispatcher(function (RouteCollector $r) {
     
     // Challenges routes
     $r->addRoute('GET', '/challenges', [ChallengesController::class, 'index']);
-    $r->addRoute('GET', '/challenges/{id:\d+}', [ChallengesController::class, 'show']);
-    $r->addRoute('POST', '/challenges/{id:\d+}/submit', [ChallengesController::class, 'submitEntry']);
+    $r->addRoute('GET', '/challenges/{id:[^/]+}', [ChallengesController::class, 'show']);
+    $r->addRoute('POST', '/challenges/{id:[^/]+}/submit', [ChallengesController::class, 'submitEntry']);
+    $r->addRoute('GET', '/challenges/{id:[^/]+}/download-submission', [ChallengesController::class, 'downloadSubmission']);
     
     // Add POST routes for form submissions
     $r->addRoute('POST', '/login', [AuthController::class, 'processLogin']);
@@ -131,6 +142,33 @@ $dispatcher = FastRoute\simpleDispatcher(function (RouteCollector $r) {
     $r->addRoute('POST', '/admin/users/role/{id:[^/]+}', [AdminController::class, 'updateUserRole']);
     $r->addRoute('GET', '/admin/logs', [AdminController::class, 'logs']);
     $r->addRoute('GET', '/admin/console', [AdminController::class, 'console']);
+
+    $r->addRoute('GET', '/about', [AboutController::class, 'index']);   
+    $r->addRoute('GET', '/contact', [ContactController::class, 'index']);
+
+    // Legal routes
+    $r->addRoute('GET', '/cookie-policy', function() {
+        $response = new \Laminas\Diactoros\Response();
+        ob_start();
+        require __DIR__ . '/../src/Views/cookie-policy.php';
+        $content = ob_get_clean();
+        $response->getBody()->write($content);
+        return $response;
+    });
+    $r->addRoute('GET', '/tos', function() {
+        $response = new \Laminas\Diactoros\Response();
+        ob_start();
+        require __DIR__ . '/../src/Views/tos.php';
+        $content = ob_get_clean(); 
+        $response->getBody()->write($content);
+        return $response;
+    });
+    $r->addRoute('GET', '/privacy-policy', function() {
+        $response = new \Laminas\Diactoros\Response();
+        $content = file_get_contents(__DIR__ . '/../src/Views/privacy-policy.html');
+        $response->getBody()->write($content);
+        return $response;
+    });
 });
 
 // Dispatch the request
@@ -271,5 +309,5 @@ function addSecurityHeaders(Response $response): Response
         ->withHeader('X-Frame-Options', 'DENY')
         ->withHeader('X-XSS-Protection', '1; mode=block')
         ->withHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
-        ->withHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' ws: wss:");
-} 
+        ->withHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com https://cdnjs.cloudflare.com https://unpkg.com; font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' ws: wss:");
+}

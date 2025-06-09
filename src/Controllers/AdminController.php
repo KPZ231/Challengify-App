@@ -94,7 +94,12 @@ class AdminController
      */
     public function createChallengeForm(ServerRequestInterface $request): ResponseInterface
     {
-        $categories = $this->db->select('categories', ['id', 'name']);
+        // Get categories from database
+        $categories = $this->db->select('categories', [
+            'id',
+            'name',
+            'description'
+        ], ['ORDER' => ['name' => 'ASC']]);
         
         return view('admin/challenge-form', [
             'action' => 'create',
@@ -107,10 +112,15 @@ class AdminController
      */
     public function createChallenge(ServerRequestInterface $request): ResponseInterface
     {
+        $user = $request->getAttribute('user');
+        if (!$user || $user->getRole() !== 'admin') {
+            return redirect('/');
+        }
+        
         $parsedBody = $request->getParsedBody();
+        $userId = $user->getId();
         $title = $parsedBody['title'] ?? '';
         $description = $parsedBody['description'] ?? '';
-        $categoryId = $parsedBody['category_id'] ?? '';
         $difficulty = $parsedBody['difficulty'] ?? 'medium';
         $rules = $parsedBody['rules'] ?? null;
         $submissionGuidelines = $parsedBody['submission_guidelines'] ?? null;
@@ -118,21 +128,32 @@ class AdminController
         $endDate = $parsedBody['end_date'] ?? date('Y-m-d H:i:s', strtotime('+7 days'));
         $status = $parsedBody['status'] ?? 'draft';
         
+        // Get category ID from form or use default if not set
+        $categoryId = $parsedBody['category_id'] ?? 'ec602ddd-44a8-11f0-aafb-74563c6dd840'; // Creative Writing as fallback
+        
+        // Get categories for the form (needed in case of validation errors)
+        $categories = $this->db->select('categories', [
+            'id',
+            'name',
+            'description'
+        ], ['ORDER' => ['name' => 'ASC']]);
+        
         // Validation
         $errors = [];
         if (empty($title)) $errors['title'] = 'Title is required';
         if (empty($description)) $errors['description'] = 'Description is required';
-        if (empty($categoryId)) $errors['category_id'] = 'Category is required';
         
         if (!empty($errors)) {
-            $categories = $this->db->select('categories', ['id', 'name']);
             return view('admin/challenge-form', [
                 'action' => 'create',
-                'categories' => $categories,
                 'errors' => $errors,
-                'old' => $parsedBody
+                'old' => $parsedBody,
+                'categories' => $categories
             ]);
         }
+        
+        // Generate UUID for new challenge
+        $challengeId = generateUuid();
         
         // Handle file upload if present
         $image = null;
@@ -154,34 +175,6 @@ class AdminController
         }
         
         // Create challenge
-        $challengeId = Uuid::uuid4()->toString();
-        
-        // Get user from request attribute (set by SessionAuthMiddleware)
-        $user = $request->getAttribute('user');
-        $userId = '';
-        
-        if ($user && method_exists($user, 'getId')) {
-            $userId = $user->getId();
-            // If this is the default guest user, try to get a real admin user
-            if ($userId === '00000000-0000-0000-0000-000000000000') {
-                $admin = $this->db->get('users', 'id', ['role' => 'admin', 'LIMIT' => 1]);
-                if ($admin) {
-                    $userId = $admin;
-                }
-            }
-        }
-        
-        // If we still don't have a valid user ID, get an admin user from the database
-        if (empty($userId) || $userId === '00000000-0000-0000-0000-000000000000') {
-            $admin = $this->db->get('users', 'id', ['role' => 'admin', 'LIMIT' => 1]);
-            if ($admin) {
-                $userId = $admin;
-            } else {
-                // Fallback to one of our known admin users from the database
-                $userId = 'ec626984-44a8-11f0-aafb-74563c6dd840'; // admin@challengify.com
-            }
-        }
-        
         $this->db->insert('challenges', [
             'id' => $challengeId,
             'user_id' => $userId,
@@ -216,7 +209,12 @@ class AdminController
             return new RedirectResponse('/admin/challenges');
         }
         
-        $categories = $this->db->select('categories', ['id', 'name']);
+        // Get categories from database
+        $categories = $this->db->select('categories', [
+            'id',
+            'name',
+            'description'
+        ], ['ORDER' => ['name' => 'ASC']]);
         
         return view('admin/challenge-form', [
             'action' => 'edit',
@@ -241,8 +239,8 @@ class AdminController
         $parsedBody = $request->getParsedBody();
         $title = $parsedBody['title'] ?? '';
         $description = $parsedBody['description'] ?? '';
-        $categoryId = $parsedBody['category_id'] ?? '';
         $difficulty = $parsedBody['difficulty'] ?? 'medium';
+        $categoryId = $parsedBody['category_id'] ?? $challenge['category_id']; // Use submitted category or keep existing one
         $rules = $parsedBody['rules'] ?? null;
         $submissionGuidelines = $parsedBody['submission_guidelines'] ?? null;
         $startDate = $parsedBody['start_date'] ?? date('Y-m-d H:i:s');
@@ -253,14 +251,11 @@ class AdminController
         $errors = [];
         if (empty($title)) $errors['title'] = 'Title is required';
         if (empty($description)) $errors['description'] = 'Description is required';
-        if (empty($categoryId)) $errors['category_id'] = 'Category is required';
         
         if (!empty($errors)) {
-            $categories = $this->db->select('categories', ['id', 'name']);
             return view('admin/challenge-form', [
                 'action' => 'edit',
                 'challenge' => $challenge,
-                'categories' => $categories,
                 'errors' => $errors,
                 'old' => $parsedBody
             ]);
@@ -293,10 +288,10 @@ class AdminController
         
         // Update challenge
         $this->db->update('challenges', [
-            'category_id' => $categoryId,
             'title' => $title,
             'description' => $description,
             'difficulty' => $difficulty,
+            'category_id' => $categoryId,
             'rules' => $rules,
             'submission_guidelines' => $submissionGuidelines,
             'start_date' => $startDate,

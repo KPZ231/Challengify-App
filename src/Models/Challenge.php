@@ -29,7 +29,7 @@ class Challenge
     public function __construct(
         string $id,
         string $userId,
-        string $categoryId,
+        string $categoryId = '00000000-0000-0000-0000-000000000000',
         string $title,
         string $description,
         string $difficulty = 'medium',
@@ -277,7 +277,7 @@ class Challenge
         return new self(
             $data['id'],
             $data['user_id'],
-            $data['category_id'],
+            $data['category_id'] ?? '00000000-0000-0000-0000-000000000000',
             $data['title'],
             $data['description'],
             $data['difficulty'],

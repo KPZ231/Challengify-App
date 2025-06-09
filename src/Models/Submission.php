@@ -6,6 +6,7 @@ namespace Kpzsproductions\Challengify\Models;
 
 use Medoo\Medoo;
 use Kpzsproductions\Challengify\Services\Database;
+use Kpzsproductions\Challengify\Services\Container;
 
 class Submission
 {
@@ -170,7 +171,16 @@ class Submission
     
     public static function findBy(array $conditions, array $orderBy = []): array
     {
-        $options = $conditions;
+        $options = [];
+        
+        // Process conditions to handle arrays properly
+        foreach ($conditions as $key => $value) {
+            if (is_array($value)) {
+                $options[$key . '[~]'] = $value; // Use [~] for IN operator in Medoo
+            } else {
+                $options[$key] = $value;
+            }
+        }
         
         if (!empty($orderBy)) {
             $options['ORDER'] = $orderBy;
@@ -256,5 +266,39 @@ class Submission
             'created_at' => $this->createdAt->format('Y-m-d H:i:s'),
             'updated_at' => $this->updatedAt ? $this->updatedAt->format('Y-m-d H:i:s') : null
         ];
+    }
+
+    /**
+     * Find submission by user and challenge IDs
+     * 
+     * @param string $userId
+     * @param string $challengeId
+     * @return null|Submission
+     */
+    public static function findByUserAndChallenge($userId, $challengeId)
+    {
+        $result = self::getDb()->get("submissions", [
+            "id",
+            "user_id",
+            "challenge_id",
+            "title",
+            "description", 
+            "content",
+            "file_path",
+            "status",
+            "created_at",
+            "updated_at"
+        ], [
+            "AND" => [
+                "user_id" => $userId,
+                "challenge_id" => $challengeId
+            ]
+        ]);
+        
+        if ($result) {
+            return self::createFromArray($result);
+        }
+        
+        return null;
     }
 } 
