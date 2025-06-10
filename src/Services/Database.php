@@ -17,11 +17,11 @@ class Database
     {
         if (self::$instance === null) {
             // Load environment variables
-            $host = $_ENV['DB_HOST'] ?? 'localhost';
-            $port = $_ENV['DB_PORT'] ?? '3306';
-            $database = $_ENV['DB_NAME'] ?? 'challengify';
-            $username = $_ENV['DB_USER'] ?? 'root';
-            $password = $_ENV['DB_PASS'] ?? '';
+            $host = $_ENV['DB_HOST'] ;
+            $port = $_ENV['DB_PORT'] ;
+            $database = $_ENV['DB_NAME'];
+            $username = $_ENV['DB_USER'] ;
+            $password = $_ENV['DB_PASS'];
             $charset = $_ENV['DB_CHARSET'] ?? 'utf8mb4';
             
             // Initialize Medoo
