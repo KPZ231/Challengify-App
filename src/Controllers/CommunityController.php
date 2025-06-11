@@ -42,8 +42,19 @@ class CommunityController
         // Get search parameter
         $search = $request->getQueryParams()['search'] ?? '';
         
+        // Get filter parameter for showing private profiles (for admins only)
+        $showPrivate = false;
+        if (isset($request->getQueryParams()['show_private']) && $currentUser->isAdmin()) {
+            $showPrivate = (bool)$request->getQueryParams()['show_private'];
+        }
+        
         // Base query conditions
         $conditions = [];
+        
+        // Hide users with private profiles unless explicitly shown by admin
+        if (!$showPrivate) {
+            $conditions['profile_visibility[!]'] = 'private';
+        }
         
         // Add search condition if provided
         if (!empty($search)) {
@@ -51,6 +62,13 @@ class CommunityController
                 'username[~]' => $search,
                 'bio[~]' => $search
             ];
+            
+            // If we're searching, we need to maintain the visibility filter
+            if (!$showPrivate) {
+                $conditions['AND'] = [
+                    'profile_visibility[!]' => 'private'
+                ];
+            }
         }
         
         // Count total users with the search condition
@@ -68,13 +86,19 @@ class CommunityController
                 'avatar',
                 'bio',
                 'reputation',
-                'created_at'
+                'created_at',
+                'profile_visibility'
             ],
             array_merge($conditions, [
                 'LIMIT' => [$offset, $perPage],
                 'ORDER' => ['reputation' => 'DESC']
             ])
         ) ?: [];
+        
+        // Track user preference
+        if (isset($request->getQueryParams()['show_private']) && $currentUser->isAdmin()) {
+            $_SESSION['admin_show_private_profiles'] = $showPrivate;
+        }
         
         // Start output buffering
         ob_start();

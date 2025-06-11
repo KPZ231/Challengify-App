@@ -79,7 +79,18 @@ class SessionAuthMiddleware implements MiddlewareInterface
                         $userData['avatar'] ?? null,
                         $userData['bio'] ?? null,
                         new \DateTime($userData['created_at']),
-                        new \DateTime($userData['updated_at'] ?? $userData['created_at'])
+                        new \DateTime($userData['updated_at'] ?? $userData['created_at']),
+                        (bool)($userData['notification_email'] ?? true),
+                        (bool)($userData['notification_push'] ?? false),
+                        (bool)($userData['notification_sms'] ?? false),
+                        $userData['notification_time'] ?? '18:00',
+                        (bool)($userData['weekly_summary'] ?? true),
+                        (bool)($userData['monthly_summary'] ?? false),
+                        $userData['profile_visibility'] ?? 'public',
+                        $userData['messaging_permission'] ?? 'all',
+                        $userData['language'] ?? 'en',
+                        $userData['timezone'] ?? 'UTC',
+                        (bool)($userData['auto_timezone'] ?? true)
                     );
                     $user->setLoggedIn(true);
                     

@@ -19,9 +19,9 @@ class Database
             // Load environment variables
             $host = $_ENV['DB_HOST'] ;
             $port = $_ENV['DB_PORT'] ;
-            $database = $_ENV['DB_NAME'];
-            $username = $_ENV['DB_USER'] ;
-            $password = $_ENV['DB_PASS'];
+            $database = $_ENV['DB_DATABASE'];
+            $username = $_ENV['DB_USERNAME'] ;
+            $password = $_ENV['DB_PASSWORD'];
             $charset = $_ENV['DB_CHARSET'] ?? 'utf8mb4';
             
             // Initialize Medoo

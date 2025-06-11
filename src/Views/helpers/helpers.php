@@ -218,4 +218,34 @@ function truncate(string $text, int $length = 100): string
     }
     
     return substr($text, 0, $length) . '...';
+}
+
+/**
+ * Translate a message using the TranslationService
+ * 
+ * @param string $key The message key to translate
+ * @param array $params Parameters to inject into the translated message
+ * @param string $domain The translation domain (file)
+ * @return string The translated message or the key itself if translation fails
+ */
+function t(string $key, array $params = [], string $domain = 'messages'): string
+{
+    // Get the translation service from the request attributes
+    // This is set by the SettingsMiddleware
+    $request = $_SERVER['REQUEST'] ?? null;
+    
+    if ($request && method_exists($request, 'getAttribute')) {
+        $translationService = $request->getAttribute('translationService');
+        if ($translationService) {
+            return $translationService->trans($key, $params, $domain);
+        }
+    }
+    
+    // Fallback: check if the translation service is available in the global scope
+    if (isset($GLOBALS['translationService'])) {
+        return $GLOBALS['translationService']->trans($key, $params, $domain);
+    }
+    
+    // Last resort: return the key itself
+    return $key;
 } 

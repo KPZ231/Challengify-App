@@ -243,7 +243,7 @@ class User
 
     public function isLoggedIn(): bool
     {
-        return $this->isLoggedIn;
+        return $this->id !== null;
     }
 
     public function setLoggedIn(bool $isLoggedIn): void
@@ -469,5 +469,13 @@ class User
     {
         $this->autoTimezone = $autoTimezone;
         $this->updatedAt = new \DateTime();
+    }
+
+    /**
+     * Check if user has admin role
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
     }
 }

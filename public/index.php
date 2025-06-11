@@ -21,12 +21,15 @@ use Kpzsproductions\Challengify\Middleware\InputSanitizationMiddleware;
 use Kpzsproductions\Challengify\Middleware\SessionAuthMiddleware;
 use Kpzsproductions\Challengify\Middleware\AuthMiddleware;
 use Kpzsproductions\Challengify\Middleware\AdminMiddleware;
+use Kpzsproductions\Challengify\Middleware\SettingsMiddleware;
 use Kpzsproductions\Challengify\Services\JwtService;
 use Kpzsproductions\Challengify\Services\SecurityService;
 use Kpzsproductions\Challengify\Services\RateLimiterService;
 use Kpzsproductions\Challengify\Services\CacheService;
 use Kpzsproductions\Challengify\Services\FileUploadService;
 use Kpzsproductions\Challengify\Services\WebSocketService;
+use Kpzsproductions\Challengify\Services\TranslationService;
+use Kpzsproductions\Challengify\Services\PrivacyService;
 use Medoo\Medoo;
 use DI\ContainerBuilder;
 use Kpzsproductions\Challengify\Controllers\AboutController;
@@ -66,11 +69,20 @@ $containerBuilder->addDefinitions([
     FileUploadService::class => function() {
         return new FileUploadService(__DIR__ . '/../uploads');
     },
+    TranslationService::class => function() {
+        return new TranslationService();
+    },
+    PrivacyService::class => function($c) {
+        return new PrivacyService($c->get(Medoo::class));
+    },
     InputSanitizationMiddleware::class => function($c) {
         return new InputSanitizationMiddleware($c->get(SecurityService::class));
     },
     SessionAuthMiddleware::class => function($c) {
         return new SessionAuthMiddleware($c->get(Medoo::class), $c->get(User::class));
+    },
+    SettingsMiddleware::class => function($c) {
+        return new SettingsMiddleware($c->get(TranslationService::class));
     },
     AuthMiddleware::class => function($c) {
         return new AuthMiddleware($c->get(User::class));
@@ -107,6 +119,16 @@ $containerBuilder->addDefinitions([
     VoteController::class => function($c) {
         return new VoteController(
             $c->get(SecurityService::class)
+        );
+    },
+    UserController::class => function($c) {
+        return new UserController(
+            $c->get(User::class),
+            $c->get(SecurityService::class),
+            $c->get(FileUploadService::class),
+            $c->get(TranslationService::class),
+            $c->get(PrivacyService::class),
+            $c->get(Medoo::class)
         );
     },
 ]);
@@ -225,6 +247,9 @@ switch ($routeInfo[0]) {
         
         // Add session auth middleware first to update user data
         $queue[] = $container->get(SessionAuthMiddleware::class);
+        
+        // Add settings middleware to apply user settings
+        $queue[] = $container->get(SettingsMiddleware::class);
         
         // Add input sanitization middleware
         $queue[] = $container->get(InputSanitizationMiddleware::class);

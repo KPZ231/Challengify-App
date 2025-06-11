@@ -11,6 +11,8 @@ use Laminas\Diactoros\Response\RedirectResponse;
 use Kpzsproductions\Challengify\Models\User;
 use Kpzsproductions\Challengify\Services\SecurityService;
 use Kpzsproductions\Challengify\Services\FileUploadService;
+use Kpzsproductions\Challengify\Services\TranslationService;
+use Kpzsproductions\Challengify\Services\PrivacyService;
 use Medoo\Medoo;
 
 class UserController
@@ -18,17 +20,23 @@ class UserController
     private User $user;
     private SecurityService $securityService;
     private FileUploadService $fileUploadService;
+    private TranslationService $translationService;
+    private PrivacyService $privacyService;
     private Medoo $db;
 
     public function __construct(
         User $user,
         SecurityService $securityService,
         FileUploadService $fileUploadService,
+        TranslationService $translationService,
+        PrivacyService $privacyService,
         Medoo $db
     ) {
         $this->user = $user;
         $this->securityService = $securityService;
         $this->fileUploadService = $fileUploadService;
+        $this->translationService = $translationService;
+        $this->privacyService = $privacyService;
         $this->db = $db;
     }
 
@@ -186,6 +194,13 @@ class UserController
         
         if (!$profileUser) {
             return new RedirectResponse('/404');
+        }
+        
+        // Check privacy settings to see if current user can view this profile
+        if (!$this->privacyService->canViewProfile($currentUser, $profileUser)) {
+            $_SESSION['flash_message'] = $this->translationService->trans('This profile is private.', [], 'messages');
+            $_SESSION['flash_type'] = 'error';
+            return new RedirectResponse('/');
         }
         
         // Get user submissions
@@ -681,6 +696,9 @@ class UserController
             return new RedirectResponse('/login');
         }
         
+        // Set translation locale based on user preference
+        $this->translationService->setLocale($user->getLanguage() ?? 'en');
+        
         // Available languages
         $languages = [
             'en' => 'English',
@@ -704,6 +722,9 @@ class UserController
         unset($_SESSION['flash_message']);
         unset($_SESSION['flash_type']);
 
+        // Make translation service available in the view
+        $translationService = $this->translationService;
+        
         // Start output buffering
         ob_start();
         
@@ -788,12 +809,23 @@ class UserController
         $user->setWeeklySummary($weeklySummary);
         $user->setMonthlySummary($monthlySummary);
         
+        // Update notification preferences in session
+        $_SESSION['user_notification_settings'] = [
+            'email' => $notificationEmail,
+            'push' => $notificationPush,
+            'sms' => $notificationSms,
+            'time' => $notificationTime,
+            'weekly' => $weeklySummary,
+            'monthly' => $monthlySummary
+        ];
+        
         // Set success message
-        $_SESSION['flash_message'] = 'Notification settings updated successfully.';
+        $this->translationService->setLocale($user->getLanguage() ?? 'en');
+        $_SESSION['flash_message'] = $this->translationService->trans('notifications_updated', [], 'settings');
         $_SESSION['flash_type'] = 'success';
         
-        // Redirect back to settings page
-        return new RedirectResponse('/settings');
+        // Redirect back to settings page with tab selection preserved
+        return new RedirectResponse('/settings#tab-notifications');
     }
     
     /**
@@ -821,22 +853,15 @@ class UserController
         
         // Get settings from form
         $profileVisibility = $params['profile_visibility'] ?? 'public';
-        $messagingPermission = $params['messaging_permission'] ?? 'all';
         
         // Validate profile visibility
         if (!in_array($profileVisibility, ['public', 'followers', 'private'])) {
             $profileVisibility = 'public';
         }
         
-        // Validate messaging permission
-        if (!in_array($messagingPermission, ['all', 'followers', 'none'])) {
-            $messagingPermission = 'all';
-        }
-        
         // Update database
         $this->db->update('users', [
             'profile_visibility' => $profileVisibility,
-            'messaging_permission' => $messagingPermission,
             'updated_at' => (new \DateTime())->format('Y-m-d H:i:s')
         ], [
             'id' => $user->getId()
@@ -844,14 +869,19 @@ class UserController
         
         // Update user object
         $user->setProfileVisibility($profileVisibility);
-        $user->setMessagingPermission($messagingPermission);
+        
+        // Store privacy settings in session for immediate effect
+        $_SESSION['user_privacy_settings'] = [
+            'profile_visibility' => $profileVisibility
+        ];
         
         // Set success message
-        $_SESSION['flash_message'] = 'Privacy settings updated successfully.';
+        $this->translationService->setLocale($user->getLanguage() ?? 'en');
+        $_SESSION['flash_message'] = $this->translationService->trans('privacy_updated', [], 'settings');
         $_SESSION['flash_type'] = 'success';
         
-        // Redirect back to settings page
-        return new RedirectResponse('/settings');
+        // Redirect back to settings page with tab selection preserved
+        return new RedirectResponse('/settings#tab-privacy');
     }
     
     /**
@@ -894,6 +924,15 @@ class UserController
             $timezone = 'UTC';
         }
         
+        // If auto timezone is enabled, try to detect it from browser
+        if ($autoTimezone && isset($_COOKIE['timezone'])) {
+            $browserTimezone = $_COOKIE['timezone'];
+            // Validate that this is actually a valid timezone
+            if (in_array($browserTimezone, $validTimezones)) {
+                $timezone = $browserTimezone;
+            }
+        }
+        
         // Update database
         $this->db->update('users', [
             'language' => $language,
@@ -909,11 +948,19 @@ class UserController
         $user->setTimezone($timezone);
         $user->setAutoTimezone($autoTimezone);
         
+        // Update language and timezone in session for immediate effect
+        $_SESSION['user_language'] = $language;
+        $_SESSION['user_timezone'] = $timezone;
+        $_SESSION['user'] = serialize($user);
+        
+        // Set translation locale to new language
+        $this->translationService->setLocale($language);
+        
         // Set success message
-        $_SESSION['flash_message'] = 'Language and timezone settings updated successfully.';
+        $_SESSION['flash_message'] = $this->translationService->trans('language_updated', [], 'settings');
         $_SESSION['flash_type'] = 'success';
         
-        // Redirect back to settings page
-        return new RedirectResponse('/settings');
+        // Redirect back to settings page with tab selection preserved
+        return new RedirectResponse('/settings#tab-language');
     }
 } 

@@ -217,48 +217,60 @@
                                 <!-- CSRF Protection -->
                                 <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                                 
-                                <div class="mb-4">
-                                    <label for="title" class="block text-gray-700 font-medium mb-2">Title</label>
-                                    <input type="text" id="title" name="title" class="form-input w-full rounded-md" value="<?= isset($old['title']) ? e($old['title']) : '' ?>" required>
+                                <div class="mb-6">
+                                    <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                                    <input type="text" id="title" name="title" 
+                                           class="ch-form-control w-full" 
+                                           placeholder="Enter submission title"
+                                           value="<?= isset($old['title']) ? e($old['title']) : '' ?>" required>
                                     <?php if (isset($errors['title'])): ?>
                                         <p class="text-red-500 text-sm mt-1"><?= $errors['title'] ?></p>
                                     <?php endif; ?>
                                 </div>
                                 
-                                <div class="mb-4">
-                                    <label for="description" class="block text-gray-700 font-medium mb-2">Description</label>
-                                    <textarea id="description" name="description" rows="3" class="form-textarea w-full rounded-md" required><?= isset($old['description']) ? e($old['description']) : '' ?></textarea>
+                                <div class="mb-6">
+                                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                                    <textarea id="description" name="description" rows="4" 
+                                              class="ch-form-control w-full"
+                                              placeholder="Brief description of your submission" required><?= isset($old['description']) ? e($old['description']) : '' ?></textarea>
                                     <?php if (isset($errors['description'])): ?>
                                         <p class="text-red-500 text-sm mt-1"><?= $errors['description'] ?></p>
                                     <?php endif; ?>
                                 </div>
                                 
-                                <div class="mb-4">
-                                    <label for="content" class="block text-gray-700 font-medium mb-2">Content</label>
-                                    <textarea id="content" name="content" rows="5" class="form-textarea w-full rounded-md" required><?= isset($old['content']) ? e($old['content']) : '' ?></textarea>
+                                <div class="mb-6">
+                                    <label for="content" class="block text-sm font-medium text-gray-700 mb-2">Content</label>
+                                    <textarea id="content" name="content" rows="6" 
+                                              class="ch-form-control w-full"
+                                              placeholder="Detailed content of your submission" required><?= isset($old['content']) ? e($old['content']) : '' ?></textarea>
                                     <?php if (isset($errors['content'])): ?>
                                         <p class="text-red-500 text-sm mt-1"><?= $errors['content'] ?></p>
                                     <?php endif; ?>
                                 </div>
                                 
-                                <div class="mb-6">
-                                    <label for="submission_file" class="block text-gray-700 font-medium mb-2">Attachment (optional)</label>
-                                    <input type="file" id="submission_file" name="submission_file" class="form-input w-full">
-                                    <p class="text-sm text-gray-500 mt-1">Supported formats:</p>
-                                    <ul class="text-sm text-gray-500 list-disc ml-5 mt-1">
-                                        <li>Images: JPG, PNG, GIF, WebP</li>
-                                        <li>Documents: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, CSV, HTML</li>
-                                        <li>Videos: MP4, MPEG, MOV, AVI, WMV, WebM</li>
-                                    </ul>
-                                    <p class="text-sm text-gray-500 mt-1">Maximum file size: 15MB</p>
+                                <div class="mb-8">
+                                    <label for="submission_file" class="block text-sm font-medium text-gray-700 mb-2">Attachment (optional)</label>
+                                    <input type="file" id="submission_file" name="submission_file" 
+                                           class="ch-form-control w-full p-2 border border-dashed border-gray-300 rounded-lg">
+                                    <div class="mt-3 bg-gray-50 p-4 rounded-lg">
+                                        <p class="text-sm font-medium text-gray-700 mb-2">Supported formats:</p>
+                                        <ul class="text-sm text-gray-600 space-y-1 ml-4">
+                                            <li><i class="far fa-image mr-2"></i>Images: JPG, PNG, GIF, WebP</li>
+                                            <li><i class="far fa-file-alt mr-2"></i>Documents: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, CSV, HTML</li>
+                                            <li><i class="far fa-play-circle mr-2"></i>Videos: MP4, MPEG, MOV, AVI, WMV, WebM</li>
+                                        </ul>
+                                        <p class="text-sm text-gray-500 mt-2"><i class="fas fa-exclamation-circle mr-2"></i>Maximum file size: 15MB</p>
+                                    </div>
                                     <?php if (isset($errors['file'])): ?>
                                         <p class="text-red-500 text-sm mt-1"><?= $errors['file'] ?></p>
                                     <?php endif; ?>
                                 </div>
                                 
-                                <button type="submit" class="ch-btn ch-btn-primary w-full">Submit Entry</button>
+                                <button type="submit" class="ch-btn ch-btn-primary w-full py-3 text-lg">
+                                    <i class="fas fa-paper-plane mr-2"></i>Submit Entry
+                                </button>
                             </form>
-                        <?php endif; ?>
+                            <?php endif; ?>
                     </div>
                 </div>
                 
