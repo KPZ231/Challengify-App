@@ -9,16 +9,20 @@ use Psr\Http\Message\ServerRequestInterface;
 use Laminas\Diactoros\Response;
 use Kpzsproductions\Challengify\Models\User;
 use Kpzsproductions\Challengify\Services\SecurityService;
+use Kpzsproductions\Challengify\Services\Database;  
+use Medoo\Medoo;
 
 class HomeController
 {
     private User $user;
     private SecurityService $securityService;
+    private Database $db;
 
     public function __construct(User $user, SecurityService $securityService)
     {
         $this->user = $user;
         $this->securityService = $securityService;
+        $this->db = new Database();
     }
 
     public function index(ServerRequestInterface $request): ResponseInterface
@@ -57,5 +61,33 @@ class HomeController
         $response->getBody()->write($content);
         
         return $response->withHeader('Content-Type', 'text/html');
+    }
+
+    /**
+     * Calculate time difference between challenge start and end dates
+     * 
+     * @param string $challengeId The ID of the challenge
+     * @return int|null Hours between start and end date, or null if dates not found
+     */
+    public function readTime(string $challengeId): ?int 
+    {
+        $challenge = Database::getInstance()->select('challenges', 
+            ['start_date', 'end_date'],
+            ['id' => $challengeId]
+        );
+
+        if (!$challenge) {
+            return null;
+        }
+
+        $startDate = new \DateTime($challenge['start_date']);
+        $endDate = new \DateTime($challenge['end_date']);
+        
+        $interval = $startDate->diff($endDate);
+        
+        // Convert to total hours
+        $hours = ($interval->days * 24) + $interval->h;
+        
+        return $hours;
     }
 }

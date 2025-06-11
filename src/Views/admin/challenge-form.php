@@ -131,7 +131,7 @@
                     <?php if ($action === 'edit' && $challenge['image']): ?>
                         <div class="mt-2 flex items-center">
                             <span class="text-sm text-gray-500">Current image:</span>
-                            <img src="/uploads/challenges/<?= htmlspecialchars($challenge['image']) ?>" alt="Challenge Image" class="ml-2 h-12 w-12 object-cover rounded-md">
+                            <img src="<?= htmlspecialchars($challenge['image']) ?>" alt="Challenge Image" class="ml-2 h-12 w-12 object-cover rounded-md">
                         </div>
                     <?php endif; ?>
                 </div>

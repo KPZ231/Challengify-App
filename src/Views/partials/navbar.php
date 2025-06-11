@@ -27,6 +27,9 @@ $isAdmin = $isLoggedIn && isset($_SESSION['user_role']) && $_SESSION['user_role'
                     <a href="/challenges" class="ch-nav-link hover:text-blue-700">
                         <i class="fas fa-trophy mr-1"></i>Challenge
                     </a>
+                    <a href="/community" class="ch-nav-link hover:text-blue-700">
+                        <i class="fas fa-users mr-1"></i>Community
+                    </a>
                     <?php if ($isAdmin): ?>
                     <a href="/admin" class="ch-nav-link hover:text-blue-700">
                         <i class="fas fa-cog mr-1"></i>Admin Panel
@@ -88,6 +91,9 @@ $isAdmin = $isLoggedIn && isset($_SESSION['user_role']) && $_SESSION['user_role'
         </a>
         <a href="/challenges" class="block py-2 px-4 text-gray-800 hover:bg-blue-50 rounded-md">
             <i class="fas fa-trophy mr-1"></i>Challenge
+        </a>
+        <a href="/community" class="block py-2 px-4 text-gray-800 hover:bg-blue-50 rounded-md">
+            <i class="fas fa-users mr-1"></i>Community
         </a>
         <?php if ($isAdmin): ?>
         <a href="/admin" class="block py-2 px-4 text-gray-800 hover:bg-blue-50 rounded-md">

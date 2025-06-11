@@ -148,11 +148,11 @@ class AuthController
             '',  // Don't store the password in the session
             $user['role'],
             $user['avatar'] ?? null,
+            $user['bio'] ?? null,
             new \DateTime($user['created_at']),
             new \DateTime($user['updated_at'] ?? $user['created_at'])
         );
         $userObj->setLoggedIn(true);
-        
         // Create session
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_role'] = $user['role'];

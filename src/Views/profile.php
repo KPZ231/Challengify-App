@@ -19,9 +19,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
     <title>User Profile - Challengify</title>
     <link rel="stylesheet" href="/css/tailwind/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
     <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -106,7 +108,23 @@
                         <div class="mt-8">
                             <h3 class="text-lg font-semibold mb-4">Update Profile</h3>
                             
-                            <div class="mb-6 bg-white rounded-md p-4 shadow-sm">
+                            <div class="mb-6 bg-white rounded-md p-4 shadow-sm" data-aos="fade-up" data-aos-delay="100">
+                                <h4 class="text-md font-medium mb-2">Update Bio</h4>
+                                <p class="text-xs text-gray-500 mb-3"><i class="fas fa-info-circle mr-1 text-blue-500"></i> Tell other users about yourself</p>
+                                <form action="/profile/update-bio" method="post" class="bg-gray-50 p-3 rounded-md border border-gray-200">
+                                    <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
+                                    <textarea name="bio" placeholder="Write something about yourself..." 
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"><?= htmlspecialchars($user->getBio() ?? '') ?></textarea>
+                                    <div class="mt-3 flex justify-end">
+                                        <button type="submit" 
+                                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+                                            <i class="fas fa-save mr-1"></i> Update Bio
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <div class="mb-6 bg-white rounded-md p-4 shadow-sm" data-aos="fade-up" data-aos-delay="200">
                                 <h4 class="text-md font-medium mb-2">Change Avatar</h4>
                                 <div class="text-xs text-gray-500 mb-3">
                                     <p class="mb-1"><i class="fas fa-info-circle mr-1 text-blue-500"></i> Only image files allowed (jpg, png, gif, webp)</p>
@@ -126,14 +144,14 @@
                                         </label>
                                     </div>
                                     <div class="mt-3 flex justify-end">
-                                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
                                             <i class="fas fa-upload mr-1"></i> Upload New Avatar
                                         </button>
                                     </div>
                                 </form>
                             </div>
                             
-                            <div class="mb-6 bg-white rounded-md p-4 shadow-sm">
+                            <div class="mb-6 bg-white rounded-md p-4 shadow-sm" data-aos="fade-up" data-aos-delay="300">
                                 <h4 class="text-md font-medium mb-2">Change Username</h4>
                                 <p class="text-xs text-gray-500 mb-3"><i class="fas fa-info-circle mr-1 text-blue-500"></i> You can change your username <?= 3 - $usernameChangeCount ?> more times</p>
                                 <form action="/profile/update-username" method="post" class="bg-gray-50 p-3 rounded-md border border-gray-200">
@@ -143,7 +161,7 @@
                                            <?= $usernameChangeCount >= 3 ? 'disabled' : '' ?>>
                                     <div class="mt-3 flex justify-end">
                                         <button type="submit" 
-                                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-400"
+                                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:bg-gray-400 disabled:transform-none disabled:shadow-none disabled:hover:scale-100"
                                                 <?= $usernameChangeCount >= 3 ? 'disabled' : '' ?>>
                                             <i class="fas fa-edit mr-1"></i> Update Username
                                         </button>
@@ -179,7 +197,7 @@
                         <?php if (empty($submissions)): ?>
                             <div class="text-center py-8 bg-gray-50 rounded-md">
                                 <p class="text-gray-500">You haven't made any submissions yet.</p>
-                                <a href="/challenges" class="mt-3 inline-block px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                <a href="/challenges" class="mt-3 inline-block px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 hover:shadow-lg transition-all duration-300 transform hover:scale-105">
                                     Browse Challenges
                                 </a>
                             </div>
@@ -274,7 +292,14 @@
         </div>
     </div>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
     <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+        
         // Simple tab switching logic
         document.addEventListener('DOMContentLoaded', function() {
             const tabs = document.querySelectorAll('ul.flex li a');

@@ -175,7 +175,9 @@
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
                                                         <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
                                                     </svg>
-                                                    <span class="vote-count">0</span>
+                                                    <span class="vote-count">
+                                                        <?= \Kpzsproductions\Challengify\Models\Vote::countVotesBySubmission($submission->getId(), 'upvote') ?>
+                                                    </span>
                                                 </button>
                                             </div>
                                         </div>
@@ -465,6 +467,22 @@
         document.addEventListener('DOMContentLoaded', function() {
             const voteButtons = document.querySelectorAll('.vote-btn');
             
+            // Check if user has already voted on each submission
+            voteButtons.forEach(button => {
+                const submissionId = button.getAttribute('data-submission');
+                
+                // Check if user has already voted on this submission
+                fetch(`/vote/status/${submissionId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.has_voted) {
+                            button.classList.add('text-blue-600');
+                            button.disabled = true;
+                        }
+                    })
+                    .catch(error => console.error('Error checking vote status:', error));
+            });
+            
             voteButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     <?php if (!isLoggedIn()): ?>
@@ -476,12 +494,31 @@
                     const voteType = this.getAttribute('data-vote');
                     const countElement = this.querySelector('.vote-count');
                     
-                    // Simulate vote (in a real app, this would be an AJAX call to the server)
-                    let currentCount = parseInt(countElement.textContent);
-                    countElement.textContent = currentCount + 1;
-                    
-                    this.classList.add('text-blue-600');
-                    this.disabled = true;
+                    // Send AJAX request to vote endpoint
+                    fetch('/vote', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `submission_id=${submissionId}&vote_type=${voteType}&csrf_token=<?= csrf_token() ?>`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Update vote count
+                            countElement.textContent = data.vote_count;
+                            
+                            // Disable button and change color
+                            this.classList.add('text-blue-600');
+                            this.disabled = true;
+                        } else {
+                            alert(data.message || 'An error occurred while processing your vote.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while processing your vote.');
+                    });
                 });
             });
         });

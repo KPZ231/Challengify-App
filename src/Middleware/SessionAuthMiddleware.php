@@ -77,6 +77,7 @@ class SessionAuthMiddleware implements MiddlewareInterface
                         '',  // Don't include password for security
                         $userData['role'],
                         $userData['avatar'] ?? null,
+                        $userData['bio'] ?? null,
                         new \DateTime($userData['created_at']),
                         new \DateTime($userData['updated_at'] ?? $userData['created_at'])
                     );

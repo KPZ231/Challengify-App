@@ -95,6 +95,7 @@ function currentUser()
         $_SESSION['password'] ?? '',
         $_SESSION['role'] ?? 'user',
         $_SESSION['avatar'] ?? null,
+        $_SESSION['bio'] ?? null,
         $createdAt,
         $updatedAt
     );

@@ -13,6 +13,8 @@ use Kpzsproductions\Challengify\Controllers\ChallengesController;
 use Kpzsproductions\Challengify\Controllers\UserController;
 use Kpzsproductions\Challengify\Controllers\AdminController;
 use Kpzsproductions\Challengify\Controllers\ContactController;
+use Kpzsproductions\Challengify\Controllers\VoteController;
+use Kpzsproductions\Challengify\Controllers\CommunityController;
 use Kpzsproductions\Challengify\Middleware\JwtMiddleware;
 use Kpzsproductions\Challengify\Middleware\RateLimitMiddleware;
 use Kpzsproductions\Challengify\Middleware\InputSanitizationMiddleware;
@@ -87,7 +89,9 @@ $containerBuilder->addDefinitions([
             'guest',            // default username
             'guest@example.com', // default email
             '',                 // empty password for guest
-            'guest'             // guest role
+            'guest',            // guest role
+            null,               // no avatar for guest
+            null                // no bio for guest
         );
     },
     
@@ -95,6 +99,13 @@ $containerBuilder->addDefinitions([
     ChallengesController::class => function($c) {
         return new ChallengesController(
             $c->get(FileUploadService::class),
+            $c->get(SecurityService::class)
+        );
+    },
+    
+    // Vote controller
+    VoteController::class => function($c) {
+        return new VoteController(
             $c->get(SecurityService::class)
         );
     },
@@ -118,6 +129,11 @@ $dispatcher = FastRoute\simpleDispatcher(function (RouteCollector $r) {
     $r->addRoute('POST', '/challenges/{id:[^/]+}/submit', [ChallengesController::class, 'submitEntry']);
     $r->addRoute('GET', '/challenges/{id:[^/]+}/download-submission', [ChallengesController::class, 'downloadSubmission']);
     
+    // Vote routes
+    $r->addRoute('POST', '/vote', [VoteController::class, 'vote']);
+    $r->addRoute('GET', '/vote/count/{id:[^/]+}', [VoteController::class, 'getVoteCount']);
+    $r->addRoute('GET', '/vote/status/{id:[^/]+}', [VoteController::class, 'hasVoted']);
+    
     // Add POST routes for form submissions
     $r->addRoute('POST', '/login', [AuthController::class, 'processLogin']);
     $r->addRoute('POST', '/register', [AuthController::class, 'processRegister']);
@@ -129,6 +145,15 @@ $dispatcher = FastRoute\simpleDispatcher(function (RouteCollector $r) {
     $r->addRoute('GET', '/profile', [UserController::class, 'profile']);
     $r->addRoute('POST', '/profile/update-avatar', [UserController::class, 'updateAvatar']);
     $r->addRoute('POST', '/profile/update-username', [UserController::class, 'updateUsername']);
+    $r->addRoute('POST', '/profile/update-bio', [UserController::class, 'updateBio']);
+    $r->addRoute('GET', '/user/{username:[^/]+}', [UserController::class, 'viewProfile']);
+    $r->addRoute('GET', '/user/{username:[^/]+}/follow', [UserController::class, 'toggleFollow']);
+    
+    // User settings routes
+    $r->addRoute('GET', '/settings', [UserController::class, 'settings']);
+    $r->addRoute('POST', '/settings/notifications', [UserController::class, 'updateNotificationSettings']);
+    $r->addRoute('POST', '/settings/privacy', [UserController::class, 'updatePrivacySettings']);
+    $r->addRoute('POST', '/settings/language', [UserController::class, 'updateLanguageSettings']);
     
     // Admin routes
     $r->addRoute('GET', '/admin', [AdminController::class, 'dashboard']);
@@ -146,6 +171,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (RouteCollector $r) {
     $r->addRoute('GET', '/about', [AboutController::class, 'index']);   
     $r->addRoute('GET', '/contact', [ContactController::class, 'index']);
     $r->addRoute('POST', '/contact/submit', [ContactController::class, 'submit']);
+    $r->addRoute('GET', '/community', [CommunityController::class, 'index']);
 
     // Legal routes
     $r->addRoute('GET', '/cookie-policy', function() {
@@ -229,9 +255,13 @@ switch ($routeInfo[0]) {
         }
         
         // Add Auth middleware for protected routes
-        if (in_array($request->getUri()->getPath(), ['/profile', '/profile/update-avatar', '/profile/update-username']) || 
+        if (in_array($request->getUri()->getPath(), ['/profile', '/profile/update-avatar', '/profile/update-username', '/profile/update-bio']) || 
             (strpos($request->getUri()->getPath(), '/challenges/') === 0 && 
-            substr($request->getUri()->getPath(), -7) === '/submit')) {
+            substr($request->getUri()->getPath(), -7) === '/submit') ||
+            (strpos($request->getUri()->getPath(), '/user/') === 0 && 
+            strpos($request->getUri()->getPath(), '/follow') !== false) || 
+            $request->getUri()->getPath() === '/settings' ||
+            strpos($request->getUri()->getPath(), '/settings/') === 0) {
             $queue[] = $container->get(AuthMiddleware::class);
         }
         
@@ -318,5 +348,5 @@ function addSecurityHeaders(Response $response): Response
         ->withHeader('X-Frame-Options', 'DENY')
         ->withHeader('X-XSS-Protection', '1; mode=block')
         ->withHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
-        ->withHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com https://cdnjs.cloudflare.com https://unpkg.com; font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' ws: wss:");
+        ->withHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com https://cdnjs.cloudflare.com https://unpkg.com; font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' ws: wss:");
 }

@@ -176,7 +176,10 @@ class Challenge
     
     public function getImage(): ?string
     {
-        return $this->image;
+        if ($this->image) {
+            return '/uploads/challenges/' . $this->image;
+        }
+        return null;
     }
     
     public function setImage(?string $image): void
@@ -342,7 +345,7 @@ class Challenge
             'start_date' => $this->startDate->format('Y-m-d H:i:s'),
             'end_date' => $this->endDate->format('Y-m-d H:i:s'),
             'status' => $this->status,
-            'image' => $this->image,
+            'image' => $this->image ? '/uploads/challenges/' . $this->image : null,
             'created_at' => $this->createdAt->format('Y-m-d H:i:s'),
             'updated_at' => $this->updatedAt ? $this->updatedAt->format('Y-m-d H:i:s') : null
         ];

@@ -5,3 +5,6 @@ vendor/
 .env.production
 .env.test
 public/uploads/
+logs/
+uploads/
+

@@ -224,6 +224,29 @@ CREATE TABLE `votes` (
   `updated_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+
+CREATE TABLE `comments` (
+  `id` char(36) NOT NULL,
+  `user_id` char(36) NOT NULL,
+  `submission_id` char(36) NOT NULL,
+  `content` text NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_comments_user_id` (`user_id`),
+  KEY `fk_comments_submission_id` (`submission_id`),
+  CONSTRAINT `fk_comments_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_comments_submission_id` FOREIGN KEY (`submission_id`) REFERENCES `submissions` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `user_followers` (
+  `follower_id` char(36) NOT NULL,
+  `following_id` char(36) NOT NULL,
+  `created_at` datetime NOT NULL,
+  PRIMARY KEY (`follower_id`,`following_id`),
+  CONSTRAINT `fk_follower_user_id` FOREIGN KEY (`follower_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  CONSTRAINT `fk_following_user_id` FOREIGN KEY (`following_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 --
 -- Indeksy dla zrzutów tabel
 --

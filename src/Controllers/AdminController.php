@@ -159,7 +159,7 @@ class AdminController
         $image = null;
         $uploadedFiles = $request->getUploadedFiles();
         if (isset($uploadedFiles['image']) && $uploadedFiles['image']->getError() === UPLOAD_ERR_OK) {
-            $uploadDir = __DIR__ . '/../../uploads/challenges/';
+            $uploadDir = __DIR__ . '/../../public/uploads/challenges/';
             $fileName = Uuid::uuid4()->toString() . '.' . pathinfo(
                 $uploadedFiles['image']->getClientFilename(),
                 PATHINFO_EXTENSION
@@ -265,7 +265,7 @@ class AdminController
         $image = $challenge['image'];
         $uploadedFiles = $request->getUploadedFiles();
         if (isset($uploadedFiles['image']) && $uploadedFiles['image']->getError() === UPLOAD_ERR_OK) {
-            $uploadDir = __DIR__ . '/../../uploads/challenges/';
+            $uploadDir = __DIR__ . '/../../public/uploads/challenges/';
             $fileName = Uuid::uuid4()->toString() . '.' . pathinfo(
                 $uploadedFiles['image']->getClientFilename(),
                 PATHINFO_EXTENSION
@@ -320,7 +320,7 @@ class AdminController
         
         // Delete challenge image if exists
         if ($challenge['image']) {
-            $uploadDir = __DIR__ . '/../../uploads/challenges/';
+            $uploadDir = __DIR__ . '/../../public/uploads/challenges/';
             if (file_exists($uploadDir . $challenge['image'])) {
                 unlink($uploadDir . $challenge['image']);
             }
