@@ -40,7 +40,7 @@ $isAdmin = $isLoggedIn && isset($_SESSION['user_role']) && $_SESSION['user_role'
 
             <!-- Right side -->
             <div class="flex items-center space-x-4">
-                <?php if (isset($user) && $user->isLoggedIn()): ?>
+                <?php if (isset($_SESSION['user_logged_in']) && $_SESSION['user_logged_in']): ?>
                     <div class="dropdown-container">
                         <button type="button" class="dropdown-btn">
                             <div class="flex items-center">
@@ -101,7 +101,7 @@ $isAdmin = $isLoggedIn && isset($_SESSION['user_role']) && $_SESSION['user_role'
         </a>
         <?php endif; ?>
         
-        <?php if (!isset($user) || !$user->isLoggedIn()): ?>
+        <?php if (!isset($_SESSION['user_logged_in']) || !$_SESSION['user_logged_in']): ?>
         <div class="mt-3 flex space-x-2">
             <a href="/login" class="ch-btn ch-btn-outline-primary block sm:hidden flex-1 text-center">
                 <i class="fas fa-sign-in-alt mr-1"></i>Login

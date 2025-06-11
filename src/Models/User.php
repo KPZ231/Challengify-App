@@ -243,7 +243,7 @@ class User
 
     public function isLoggedIn(): bool
     {
-        return $this->id !== null;
+        return $this->isLoggedIn;
     }
 
     public function setLoggedIn(bool $isLoggedIn): void
