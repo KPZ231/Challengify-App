@@ -5,6 +5,10 @@ vendor/
 .env.production
 .env.test
 public/uploads/
+<<<<<<< HEAD
 logs/
 uploads/
 
+=======
+ca.pem
+>>>>>>> 38db1e9cb40108e9f06aab6371ad9983c9e0ba53

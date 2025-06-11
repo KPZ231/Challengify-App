@@ -19,9 +19,7 @@ SET time_zone = "+00:00";
 
 --
 -- Baza danych: `challengify`
---
-CREATE DATABASE IF NOT EXISTS `challengify` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `challengify`;
+
 
 -- --------------------------------------------------------
 
@@ -36,7 +34,8 @@ CREATE TABLE `badges` (
   `image` varchar(255) NOT NULL,
   `criteria` text NOT NULL,
   `created_at` datetime NOT NULL,
-  `updated_at` datetime DEFAULT NULL
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`) -- Dodano PRIMARY KEY tutaj
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -66,7 +65,8 @@ CREATE TABLE `categories` (
   `description` text DEFAULT NULL,
   `slug` varchar(100) NOT NULL,
   `created_at` datetime NOT NULL,
-  `updated_at` datetime DEFAULT NULL
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`) -- Dodano PRIMARY KEY tutaj
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -100,7 +100,8 @@ CREATE TABLE `challenges` (
   `status` enum('draft','active','completed','cancelled') DEFAULT 'draft',
   `image` varchar(255) DEFAULT NULL,
   `created_at` datetime NOT NULL,
-  `updated_at` datetime DEFAULT NULL
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`) -- DODAŁEM TĘ LINIĘ
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -114,7 +115,8 @@ CREATE TABLE `phinxlog` (
   `migration_name` varchar(100) DEFAULT NULL,
   `start_time` timestamp NULL DEFAULT NULL,
   `end_time` timestamp NULL DEFAULT NULL,
-  `breakpoint` tinyint(1) NOT NULL DEFAULT 0
+  `breakpoint` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`version`) -- Dodano PRIMARY KEY tutaj, aby Phinxlog miało klucz podstawowy
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -128,7 +130,8 @@ CREATE TABLE `rate_limits` (
   `key` varchar(100) NOT NULL,
   `ip` varchar(45) NOT NULL,
   `attempts` int(11) DEFAULT 0,
-  `last_attempt` datetime NOT NULL
+  `last_attempt` datetime NOT NULL,
+  PRIMARY KEY (`id`) -- Dodano PRIMARY KEY tutaj
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -155,7 +158,8 @@ CREATE TABLE `submissions` (
   `file_path` varchar(255) DEFAULT NULL,
   `status` enum('draft','submitted','approved','rejected') DEFAULT 'submitted',
   `created_at` datetime NOT NULL,
-  `updated_at` datetime DEFAULT NULL
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`) -- Dodano PRIMARY KEY tutaj
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -181,7 +185,8 @@ CREATE TABLE `users` (
   `last_attempt_time` datetime DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime DEFAULT NULL,
-  `username_changes` int(11) NOT NULL DEFAULT 0 COMMENT 'Number of times user has changed their username'
+  `username_changes` int(11) NOT NULL DEFAULT 0 COMMENT 'Number of times user has changed their username',
+  PRIMARY KEY (`id`) -- Dodano PRIMARY KEY tutaj
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -189,7 +194,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `email`, `password`, `first_name`, `last_name`, `avatar`, `bio`, `role`, `email_verified_at`, `remember_token`, `reputation`, `login_attempts`, `last_attempt_time`, `created_at`, `updated_at`, `username_changes`) VALUES
-('', 'admin2', 'kduda@zscl.pl', '$2y$12$4QXixtlZB7LWDmXzI9jCy.q7rZOENCKx2z2wEdGDLyyiAVv1mY/J2', NULL, NULL, NULL, NULL, 'user', NULL, NULL, 0, 0, NULL, '2025-06-08 22:16:33', '2025-06-08 22:16:33', 0),
+-- Usunięto wiersz z pustym 'id' - 'admin2'. Jeśli potrzebujesz tego użytkownika, dodaj mu prawidłowy UUID.
 ('8707f81a-a15c-439c-a8c8-e03e0b8bd057', 'KPZ2311', 'kapieksperimental@gmail.com', '$2y$12$A8f9ym/UeDURXIZoGwmskuqatDl91PmdYKzoXv0MMLPyD/wyx.6Xq', NULL, NULL, '9ce9b216-8e5b-4b4e-8c52-eb442b8c9238.png', NULL, 'admin', NULL, NULL, 0, 0, NULL, '2025-06-08 20:52:49', '2025-06-08 20:52:49', 0),
 ('ec626984-44a8-11f0-aafb-74563c6dd840', 'admin', 'admin@challengify.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, NULL, NULL, NULL, 'admin', NULL, NULL, 0, 0, NULL, '2025-06-08 22:41:15', NULL, 0);
 
@@ -205,7 +210,8 @@ CREATE TABLE `user_badges` (
   `badge_id` char(36) NOT NULL,
   `awarded_at` datetime NOT NULL,
   `created_at` datetime NOT NULL,
-  `updated_at` datetime DEFAULT NULL
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`) -- Dodano PRIMARY KEY tutaj
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -221,7 +227,8 @@ CREATE TABLE `votes` (
   `vote_type` enum('upvote','downvote') NOT NULL,
   `comment` text DEFAULT NULL,
   `created_at` datetime NOT NULL,
-  `updated_at` datetime DEFAULT NULL
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`) -- Dodano PRIMARY KEY tutaj
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
@@ -255,70 +262,63 @@ CREATE TABLE `user_followers` (
 -- Indeksy dla tabeli `badges`
 --
 ALTER TABLE `badges`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `name` (`name`);
+  ADD UNIQUE KEY `name` (`name`); -- PRIMARY KEY jest już w CREATE TABLE
 
 --
 -- Indeksy dla tabeli `categories`
 --
 ALTER TABLE `categories`
-  ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `name` (`name`),
-  ADD UNIQUE KEY `slug` (`slug`);
+  ADD UNIQUE KEY `slug` (`slug`); -- PRIMARY KEY jest już w CREATE TABLE
 
 --
 -- Indeksy dla tabeli `challenges`
 --
 ALTER TABLE `challenges`
-  ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `title` (`title`),
   ADD KEY `fk_challenges_user_id` (`user_id`),
-  ADD KEY `fk_challenges_category_id` (`category_id`);
+  ADD KEY `fk_challenges_category_id` (`category_id`); -- PRIMARY KEY jest już w CREATE TABLE
 
 --
 -- Indeksy dla tabeli `phinxlog`
 --
 ALTER TABLE `phinxlog`
-  ADD PRIMARY KEY (`version`);
+  -- PRIMARY KEY jest już w CREATE TABLE
+  ;
 
 --
 -- Indeksy dla tabeli `rate_limits`
 --
 ALTER TABLE `rate_limits`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `key_ip` (`key`,`ip`);
+  ADD UNIQUE KEY `key_ip` (`key`,`ip`); -- PRIMARY KEY jest już w CREATE TABLE
 
 --
 -- Indeksy dla tabeli `submissions`
 --
 ALTER TABLE `submissions`
-  ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `user_challenge` (`user_id`,`challenge_id`),
-  ADD KEY `fk_submissions_challenge_id` (`challenge_id`);
+  ADD KEY `fk_submissions_challenge_id` (`challenge_id`); -- PRIMARY KEY jest już w CREATE TABLE
 
 --
 -- Indeksy dla tabeli `users`
 --
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email` (`email`),
-  ADD UNIQUE KEY `username` (`username`);
+  ADD UNIQUE KEY `username` (`username`); -- PRIMARY KEY jest już w CREATE TABLE
 
 --
 -- Indeksy dla tabeli `user_badges`
 --
 ALTER TABLE `user_badges`
-  ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `user_badge` (`user_id`,`badge_id`),
-  ADD KEY `fk_user_badges_badge_id` (`badge_id`);
+  ADD KEY `fk_user_badges_badge_id` (`badge_id`); -- PRIMARY KEY jest już w CREATE TABLE
 
 --
 -- Indeksy dla tabeli `votes`
 --
 ALTER TABLE `votes`
-  ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `user_submission` (`user_id`,`submission_id`),
-  ADD KEY `fk_votes_submission_id` (`submission_id`);
+  ADD KEY `fk_votes_submission_id` (`submission_id`); -- PRIMARY KEY jest już w CREATE TABLE
 
 --
 -- AUTO_INCREMENT dla zrzuconych tabel
