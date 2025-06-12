@@ -15,6 +15,7 @@ return [
     'notification_channels' => 'Kanały Powiadomień',
     'email_notifications' => 'Powiadomienia e-mail',
     'push_notifications' => 'Powiadomienia push (mobilne)',
+    'no_notifications' => 'Brak powiadomień',
     'sms_notifications' => 'Powiadomienia SMS',
     'notification_time' => 'Codzienny Czas Powiadomień',
     'time_for_daily' => 'Czas otrzymywania codziennych powiadomień',

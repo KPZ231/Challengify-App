@@ -15,6 +15,7 @@ return [
     'notification_channels' => 'Notification Channels',
     'email_notifications' => 'Email notifications',
     'push_notifications' => 'Push notifications (mobile)',
+    'no_notifications' => 'No notifications',
     'sms_notifications' => 'SMS notifications',
     'notification_time' => 'Daily Notification Time',
     'time_for_daily' => 'Time for receiving daily notifications',

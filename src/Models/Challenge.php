@@ -6,6 +6,7 @@ namespace Kpzsproductions\Challengify\Models;
 
 use Medoo\Medoo;
 use Kpzsproductions\Challengify\Services\Database;
+use Kpzsproductions\Challengify\Services\NotificationService;
 
 class Challenge
 {
@@ -170,8 +171,15 @@ class Challenge
     
     public function setStatus(string $status): void
     {
+        $oldStatus = $this->status;
         $this->status = $status;
         $this->updatedAt = new \DateTime();
+        
+        // Send notifications when a challenge is published
+        if ($oldStatus !== 'published' && $status === 'published') {
+            $notificationService = \Kpzsproductions\Challengify\Services\NotificationService::getInstance();
+            $notificationService->sendNewChallengeNotifications($this->id);
+        }
     }
     
     public function getImage(): ?string

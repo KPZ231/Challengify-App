@@ -3,7 +3,7 @@
         <div class="mb-3 sm:mb-0 text-center sm:text-left">
             <p class="text-xs sm:text-sm">
                 We use cookies to enhance your experience. By continuing to visit this site you agree to our use of cookies. 
-                <a href="/cookies" class="underline hover:text-gray-300">Learn more</a>
+                <a href="/cookie-policy" class="underline hover:text-gray-300">Learn more</a>
             </p>
         </div>
         <div class="flex gap-2 sm:gap-4">

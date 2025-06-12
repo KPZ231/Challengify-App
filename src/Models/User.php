@@ -6,6 +6,7 @@ namespace Kpzsproductions\Challengify\Models;
 
 use Medoo\Medoo;
 use Kpzsproductions\Challengify\Services\Database;
+use Kpzsproductions\Challengify\Services\NotificationService;
 
 
 class User
@@ -290,16 +291,26 @@ class User
             return false; // Cannot follow yourself
         }
         
+        $db = Database::getInstance();
+        
         if ($this->isFollowing($userId)) {
             return true; // Already following
         }
-
-        $db = Database::getInstance();
-        return $db->insert('user_followers', [
+        
+        $result = $db->insert('user_followers', [
             'follower_id' => $this->id,
             'following_id' => $userId,
-            'created_at' => (new \DateTime())->format('Y-m-d H:i:s')
-        ])->rowCount() > 0;
+            'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+        ]);
+        
+        if ($result && $result->rowCount() > 0) {
+            // Send notification about new follower
+            $notificationService = NotificationService::getInstance();
+            $notificationService->sendNewFollowerNotification($userId, $this->id);
+            return true;
+        }
+        
+        return false;
     }
 
     /**
@@ -359,25 +370,24 @@ class User
         $this->updatedAt = new \DateTime();
     }
 
-    public function getNotificationPush(): bool
+    /**
+     * Get whether the user has disabled all notifications ("none").
+     * Returns true if all notification channels (email, push, sms) are off.
+     */
+    public function getNotificationNone(): bool
     {
-        return $this->notificationPush;
+        return !$this->notificationEmail && !$this->notificationPush && !$this->notificationSms;
     }
 
-    public function setNotificationPush(bool $notificationPush): void
+    /**
+     * Set all notification channels (email, push, sms) to the given value.
+     * If $none is true, disables all notifications. If false, enables all.
+     */
+    public function setNotificationNone(bool $none): void
     {
-        $this->notificationPush = $notificationPush;
-        $this->updatedAt = new \DateTime();
-    }
-
-    public function getNotificationSms(): bool
-    {
-        return $this->notificationSms;
-    }
-
-    public function setNotificationSms(bool $notificationSms): void
-    {
-        $this->notificationSms = $notificationSms;
+        $this->notificationEmail = !$none;
+        $this->notificationPush = !$none;
+        $this->notificationSms = !$none;
         $this->updatedAt = new \DateTime();
     }
 

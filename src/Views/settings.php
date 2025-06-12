@@ -98,34 +98,20 @@
                         <h3 class="text-lg font-semibold mb-4"><?= t('notification_channels', [], 'settings') ?></h3>
                         <div class="space-y-3">
                             <div class="flex items-center">
-                                <input type="checkbox" id="notification_email" name="notification_email" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" <?= $user->getNotificationEmail() ? 'checked' : '' ?>>
+                                <input type="radio" id="notification_email" name="notification_channel" value="email" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" <?= $user->getNotificationEmail() && !$user->getNotificationNone() ? 'checked' : '' ?>>
                                 <label for="notification_email" class="ml-3 block text-sm font-medium text-gray-700">
                                     <i class="fas fa-envelope mr-2 text-gray-500"></i><?= t('email_notifications', [], 'settings') ?>
                                 </label>
                             </div>
                             <div class="flex items-center">
-                                <input type="checkbox" id="notification_push" name="notification_push" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" <?= $user->getNotificationPush() ? 'checked' : '' ?>>
-                                <label for="notification_push" class="ml-3 block text-sm font-medium text-gray-700">
-                                    <i class="fas fa-mobile-alt mr-2 text-gray-500"></i><?= t('push_notifications', [], 'settings') ?>
-                                </label>
-                            </div>
-                            <div class="flex items-center">
-                                <input type="checkbox" id="notification_sms" name="notification_sms" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" <?= $user->getNotificationSms() ? 'checked' : '' ?>>
-                                <label for="notification_sms" class="ml-3 block text-sm font-medium text-gray-700">
-                                    <i class="fas fa-sms mr-2 text-gray-500"></i><?= t('sms_notifications', [], 'settings') ?>
+                                <input type="radio" id="notification_none" name="notification_channel" value="none" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" <?= $user->getNotificationNone() ? 'checked' : '' ?>>
+                                <label for="notification_none" class="ml-3 block text-sm font-medium text-gray-700">
+                                    <i class="fas fa-bell-slash mr-2 text-gray-500"></i><?= t('no_notifications', [], 'settings') ?>
                                 </label>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="mb-6">
-                        <h3 class="text-lg font-semibold mb-4"><?= t('notification_time', [], 'settings') ?></h3>
-                        <div class="flex items-center space-x-2">
-                            <input type="time" id="notification_time" name="notification_time" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full sm:w-auto shadow-sm sm:text-sm border-gray-300 rounded-md" value="<?= $user->getNotificationTime() ?>">
-                            <span class="text-sm text-gray-500"><?= t('time_for_daily', [], 'settings') ?></span>
-                        </div>
-                    </div>
-                    
+                                        
                     <div class="mb-6">
                         <h3 class="text-lg font-semibold mb-4"><?= t('summary_reports', [], 'settings') ?></h3>
                         <div class="space-y-3">

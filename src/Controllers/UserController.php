@@ -775,10 +775,12 @@ class UserController
             return new RedirectResponse('/settings');
         }
         
-        // Get settings from form
-        $notificationEmail = isset($params['notification_email']) ? true : false;
-        $notificationPush = isset($params['notification_push']) ? true : false;
-        $notificationSms = isset($params['notification_sms']) ? true : false;
+        // Get notification channel from form (radio button)
+        $notificationChannel = $params['notification_channel'] ?? 'none';
+        $notificationEmail = ($notificationChannel === 'email');
+        $notificationNone = ($notificationChannel === 'none');
+        
+        // Get other settings from form
         $notificationTime = $params['notification_time'] ?? '18:00';
         $weeklySummary = isset($params['weekly_summary']) ? true : false;
         $monthlySummary = isset($params['monthly_summary']) ? true : false;
@@ -791,8 +793,8 @@ class UserController
         // Update database
         $this->db->update('users', [
             'notification_email' => $notificationEmail ? 1 : 0,
-            'notification_push' => $notificationPush ? 1 : 0,
-            'notification_sms' => $notificationSms ? 1 : 0,
+            'notification_push' => 0, // We're not using push notifications in this version
+            'notification_sms' => 0, // We're not using SMS notifications in this version
             'notification_time' => $notificationTime,
             'weekly_summary' => $weeklySummary ? 1 : 0,
             'monthly_summary' => $monthlySummary ? 1 : 0,
@@ -802,9 +804,12 @@ class UserController
         ]);
         
         // Update user object
-        $user->setNotificationEmail($notificationEmail);
-        $user->setNotificationPush($notificationPush);
-        $user->setNotificationSms($notificationSms);
+        if ($notificationNone) {
+            $user->setNotificationNone(true);
+        } else {
+            $user->setNotificationEmail($notificationEmail);
+        }
+        
         $user->setNotificationTime($notificationTime);
         $user->setWeeklySummary($weeklySummary);
         $user->setMonthlySummary($monthlySummary);
@@ -812,8 +817,7 @@ class UserController
         // Update notification preferences in session
         $_SESSION['user_notification_settings'] = [
             'email' => $notificationEmail,
-            'push' => $notificationPush,
-            'sms' => $notificationSms,
+            'none' => $notificationNone,
             'time' => $notificationTime,
             'weekly' => $weeklySummary,
             'monthly' => $monthlySummary
