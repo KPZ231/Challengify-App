@@ -49,3 +49,16 @@
         </div>
     </div>
 </footer>
+
+<?php if (isset($cspNonce) && !empty($cspNonce)): ?>
+<script nonce="<?= $cspNonce ?>" src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script nonce="<?= $cspNonce ?>">
+    AOS.init({
+        duration: 800,
+        once: true
+    });
+</script>
+<?php endif; ?>
+
+</body>
+</html>

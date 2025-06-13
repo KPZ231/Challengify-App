@@ -63,6 +63,9 @@ $isAdmin = $isLoggedIn && isset($_SESSION['user_role']) && $_SESSION['user_role'
                             <a href="/settings" class="dropdown-item">
                                 <i class="fas fa-cog mr-2"></i>Settings
                             </a>
+                            <a href="/reports" class="dropdown-item">
+                                <i class="fas fa-chart-bar mr-2"></i>Reports
+                            </a>
                             <div class="dropdown-divider"></div>
                             <a href="/logout" class="dropdown-item dropdown-item-danger">
                                 <i class="fas fa-sign-out-alt mr-2"></i>Logout
@@ -107,6 +110,12 @@ $isAdmin = $isLoggedIn && isset($_SESSION['user_role']) && $_SESSION['user_role'
                 <i class="fas fa-sign-in-alt mr-1"></i>Login
             </a>
         </div>
+        <?php endif; ?>
+        
+        <?php if (isset($_SESSION['user_logged_in']) && $_SESSION['user_logged_in']): ?>
+        <a href="/reports" class="block py-2 px-4 text-gray-800 hover:bg-blue-50 rounded-md">
+            <i class="fas fa-chart-bar mr-1"></i>Reports
+        </a>
         <?php endif; ?>
     </div>
 </nav>

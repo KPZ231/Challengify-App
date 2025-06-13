@@ -112,24 +112,6 @@
                         </div>
                     </div>
                                         
-                    <div class="mb-6">
-                        <h3 class="text-lg font-semibold mb-4"><?= t('summary_reports', [], 'settings') ?></h3>
-                        <div class="space-y-3">
-                            <div class="flex items-center">
-                                <input type="checkbox" id="weekly_summary" name="weekly_summary" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" <?= $user->getWeeklySummary() ? 'checked' : '' ?>>
-                                <label for="weekly_summary" class="ml-3 block text-sm font-medium text-gray-700">
-                                    <i class="fas fa-calendar-week mr-2 text-gray-500"></i><?= t('weekly_summary', [], 'settings') ?>
-                                </label>
-                            </div>
-                            <div class="flex items-center">
-                                <input type="checkbox" id="monthly_summary" name="monthly_summary" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" <?= $user->getMonthlySummary() ? 'checked' : '' ?>>
-                                <label for="monthly_summary" class="ml-3 block text-sm font-medium text-gray-700">
-                                    <i class="fas fa-calendar-alt mr-2 text-gray-500"></i><?= t('monthly_summary', [], 'settings') ?>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    
                     <div class="pt-5">
                         <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                             <i class="fas fa-save mr-2"></i><?= t('save_notification_settings', [], 'settings') ?>

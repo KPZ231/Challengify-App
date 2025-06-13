@@ -15,6 +15,7 @@ use Kpzsproductions\Challengify\Controllers\AdminController;
 use Kpzsproductions\Challengify\Controllers\ContactController;
 use Kpzsproductions\Challengify\Controllers\VoteController;
 use Kpzsproductions\Challengify\Controllers\CommunityController;
+use Kpzsproductions\Challengify\Controllers\ReportController;
 use Kpzsproductions\Challengify\Middleware\JwtMiddleware;
 use Kpzsproductions\Challengify\Middleware\RateLimitMiddleware;
 use Kpzsproductions\Challengify\Middleware\InputSanitizationMiddleware;
@@ -131,6 +132,17 @@ $containerBuilder->addDefinitions([
             $c->get(Medoo::class)
         );
     },
+    
+    // Report controller and service
+    Kpzsproductions\Challengify\Services\ReportService::class => function($c) {
+        return new Kpzsproductions\Challengify\Services\ReportService($c->get(Medoo::class));
+    },
+    
+    ReportController::class => function($c) {
+        return new ReportController(
+            $c->get(Kpzsproductions\Challengify\Services\ReportService::class)
+        );
+    },
 ]);
 
 $container = $containerBuilder->build();
@@ -155,6 +167,9 @@ $dispatcher = FastRoute\simpleDispatcher(function (RouteCollector $r) {
     $r->addRoute('POST', '/vote', [VoteController::class, 'vote']);
     $r->addRoute('GET', '/vote/count/{id:[^/]+}', [VoteController::class, 'getVoteCount']);
     $r->addRoute('GET', '/vote/status/{id:[^/]+}', [VoteController::class, 'hasVoted']);
+    
+    // Reports routes
+    $r->addRoute('GET', '/reports', [ReportController::class, 'index']);
     
     // Add POST routes for form submissions
     $r->addRoute('POST', '/login', [AuthController::class, 'processLogin']);
@@ -280,7 +295,7 @@ switch ($routeInfo[0]) {
         }
         
         // Add Auth middleware for protected routes
-        if (in_array($request->getUri()->getPath(), ['/profile', '/profile/update-avatar', '/profile/update-username', '/profile/update-bio']) || 
+        if (in_array($request->getUri()->getPath(), ['/profile', '/profile/update-avatar', '/profile/update-username', '/profile/update-bio', '/reports']) || 
             (strpos($request->getUri()->getPath(), '/challenges/') === 0 && 
             substr($request->getUri()->getPath(), -7) === '/submit') ||
             (strpos($request->getUri()->getPath(), '/user/') === 0 && 

@@ -1,4 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
-  <circle cx="50" cy="50" r="50" fill="#3B82F6" />
-  <text x="50" y="70" font-family="Arial" font-size="50" font-weight="bold" fill="white" text-anchor="middle">?</text>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="100" cy="70" r="50" fill="#c0d3e8"/>
+  <circle cx="100" cy="230" r="100" fill="#c0d3e8"/>
+  <path d="M100,150 C75,150 50,140 50,120" stroke="#c0d3e8" stroke-width="10"/>
+  <path d="M100,150 C125,150 150,140 150,120" stroke="#c0d3e8" stroke-width="10"/>
 </svg> 

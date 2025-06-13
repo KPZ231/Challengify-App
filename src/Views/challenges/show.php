@@ -161,10 +161,12 @@
                                         
                                         <div class="flex items-center justify-between">
                                             <div class="flex items-center">
-                                                <img src="/images/default-avatar.png" alt="User avatar" class="w-8 h-8 rounded-full mr-2">
+                                                <img src="<?php
+                                                        $user = \Kpzsproductions\Challengify\Models\User::find($submission->getUserId());
+                                                        echo $user ? e($user->getAvatar()) : '/images/default-avatar.svg';
+                                                    ?>" alt="User avatar" class="w-8 h-8 rounded-full mr-2">
                                                 <span class="font-medium">
                                                     <?php
-                                                    $user = \Kpzsproductions\Challengify\Models\User::find($submission->getUserId());
                                                     echo $user ? e($user->getUsername()) : 'Anonymous';
                                                     ?>
                                                 </span>

@@ -28,20 +28,22 @@
     <!-- Hero Section -->
     <header class="ch-bg-gradient text-white py-16">
         <div class="container mx-auto px-4">
-            <div class="max-w-3xl" data-aos="fade-up">
-                <div class="flex items-center justify-between mb-6">
-                    <div>
-                        <h1 class="text-4xl md:text-5xl font-bold">Daily Micro-Challenges to<br>Spark Your Creativity</h1>
-                        <p class="text-xl mt-4">Challenge yourself with short, creative tasks that take just 15-30 minutes to complete.</p>
+            <div class="flex items-center justify-between" data-aos="fade-up">
+                <div class="max-w-2xl">
+                    <h1 class="text-4xl md:text-5xl font-bold">Daily Micro-Challenges to<br>Spark Your Creativity</h1>
+                    <p class="text-xl mt-4">Challenge yourself with short, creative tasks that take just 15-30 minutes to complete.</p>
+                    
+                    <div class="flex flex-wrap gap-4 mt-8">
+                        <a href="/register" class="ch-btn ch-btn-primary bg-white text-blue-600 hover:bg-blue-50">Get Started</a>
+                        <a href="/challenges" class="ch-btn ch-btn-outline-light border-2 border-white text-white">View Today's Challenges</a>
                     </div>
                 </div>
-                <div class="flex flex-wrap gap-4 mt-8">
-                    <a href="/register" class="ch-btn ch-btn-primary bg-white text-blue-600 hover:bg-blue-50">Get Started</a>
-                    <a href="/challenges" class="ch-btn ch-btn-outline-light border-2 border-white text-white">View Today's Challenges</a>
+                
+                <div class="hidden md:block" data-aos="fade-in">
+                    <img src="/images/challengify-logo.png" alt="Challengify Hero" class="max-w-full h-auto" style="max-height: 180px;">
                 </div>
-            </div>            
+            </div>
         </div>
-        
     </header>
 
     <!-- Featured Challenge Section -->
