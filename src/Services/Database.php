@@ -16,13 +16,13 @@ class Database
     public static function getInstance(): Medoo
     {
         if (self::$instance === null) {
-            // Load environment variables
-            $host = $_ENV['DB_HOST'] ;
-            $port = $_ENV['DB_PORT'] ;
-            $database = $_ENV['DB_DATABASE'];
-            $username = $_ENV['DB_USERNAME'] ;
-            $password = $_ENV['DB_PASSWORD'];
-            $charset = $_ENV['DB_CHARSET'] ?? 'utf8mb4';
+            // Load and validate environment variables
+            $host = filter_var($_ENV['DB_HOST'] ?? 'localhost', FILTER_SANITIZE_STRING);
+            $port = filter_var($_ENV['DB_PORT'] ?? '3306', FILTER_VALIDATE_INT) ?: 3306;
+            $database = filter_var($_ENV['DB_DATABASE'] ?? '', FILTER_SANITIZE_STRING);
+            $username = filter_var($_ENV['DB_USERNAME'] ?? '', FILTER_SANITIZE_STRING);
+            $password = $_ENV['DB_PASSWORD'] ?? '';
+            $charset = filter_var($_ENV['DB_CHARSET'] ?? 'utf8mb4', FILTER_SANITIZE_STRING);
             
             // Initialize Medoo
             self::$instance = new Medoo([

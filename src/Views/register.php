@@ -3,7 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register | Challengify</title>
+    <meta name="description" content="Create your Challangeo account to access daily creative challenges and team engagement activities.">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="author" content="Challangeo">
+    
+    <!-- Canonical link -->
+    <link rel="canonical" href="https://challangeo.io/register">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/images/challangify-logo/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/challangify-logo/apple-touch-icon.png">
+    
+    <title>Register | Challangeo</title>
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="/css/tailwind/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">

@@ -186,6 +186,17 @@ CREATE TABLE `users` (
   `created_at` datetime NOT NULL,
   `updated_at` datetime DEFAULT NULL,
   `username_changes` int(11) NOT NULL DEFAULT 0 COMMENT 'Number of times user has changed their username',
+  `notification_email` BOOLEAN NOT NULL DEFAULT 1,
+  `notification_push` BOOLEAN NOT NULL DEFAULT 0,
+  `notification_sms` BOOLEAN NOT NULL DEFAULT 0,
+  `notification_time` VARCHAR(5) NOT NULL DEFAULT '18:00',
+  `weekly_summary` BOOLEAN NOT NULL DEFAULT 1,
+  `monthly_summary` BOOLEAN NOT NULL DEFAULT 0,
+  `profile_visibility` ENUM('public', 'followers', 'private') NOT NULL DEFAULT 'public',
+  `language` VARCHAR(5) NOT NULL DEFAULT 'en',
+  `timezone` VARCHAR(64) NOT NULL DEFAULT 'UTC',
+  `auto_timezone` BOOLEAN NOT NULL DEFAULT 1,
+  `messaging_permission` ENUM('all', 'followers', 'none') NOT NULL DEFAULT 'all',
   PRIMARY KEY (`id`) -- Dodano PRIMARY KEY tutaj
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

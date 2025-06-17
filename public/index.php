@@ -379,14 +379,25 @@ if (isset($response)) {
 }
 
 /**
- * Add security headers to response
+ * Add comprehensive security headers to the response
  */
 function addSecurityHeaders(Response $response): Response
 {
     return $response
-        ->withHeader('X-Content-Type-Options', 'nosniff')
         ->withHeader('X-Frame-Options', 'DENY')
         ->withHeader('X-XSS-Protection', '1; mode=block')
+        ->withHeader('X-Content-Type-Options', 'nosniff')
         ->withHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
-        ->withHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com https://cdnjs.cloudflare.com https://unpkg.com; font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' ws: wss:");
+        ->withHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()')
+        ->withHeader('Content-Security-Policy', 
+            "default-src 'self'; " .
+            "script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com unpkg.com cdn.jsdelivr.net; " .
+            "style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com fonts.googleapis.com cdn.jsdelivr.net unpkg.com; " .
+            "font-src 'self' fonts.gstatic.com cdnjs.cloudflare.com; " .
+            "img-src 'self' data:; " .
+            "connect-src 'self' ws: wss:; " .
+            "frame-ancestors 'none'; " .
+            "form-action 'self'"
+        )
+        ->withHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
 }

@@ -3,14 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terms of Service - Challengify</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-    <link rel="shortcut icon" href="/images/challengify-logo.png" type="image/x-icon">
-
+    <meta name="description" content="Terms of Service for Challangeo - Read about the rules and guidelines for using our challenge platform.">
     <meta name="robots" content="noindex, nofollow">
-    <meta name="description" content="Terms of Service for Challengify">
-
+    <meta name="author" content="Challangeo">
+    
+    <!-- Canonical link -->
+    <link rel="canonical" href="https://challangeo.io/terms-of-service">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://challangeo.io/terms-of-service">
+    <meta property="og:title" content="Terms of Service - Challangeo">
+    <meta property="og:description" content="Terms of Service for Challangeo - Read about the rules and guidelines for using our challenge platform.">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Terms of Service - Challangeo">
+    <meta name="twitter:description" content="Terms of Service for Challangeo - Read about the rules and guidelines for using our challenge platform.">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/images/challangify-logo/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/challangify-logo/apple-touch-icon.png">
+    
+    <title>Terms of Service - Challangeo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="/css/tailwind/tailwind.min.css">
     <link rel="stylesheet" href="/css/styles.css">
 </head>

@@ -3,23 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Challenge yourself daily with micro-challenges designed to spark creativity and improve your coding skills">
-    <meta name="keywords" content="coding challenges, programming practice, daily challenges, micro-challenges, coding skills, developer challenges">
-    <meta name="author" content="Challengify">
-    <meta property="og:title" content="Challengify | Daily Micro-Challenges to Spark Your Creativity">
-    <meta property="og:description" content="Challenge yourself daily with micro-challenges designed to spark creativity and improve your coding skills">
+    <meta name="description" content="Boost team productivity with Challangeo - the premier platform for creative challenges and team engagement activities.">
+    <meta name="keywords" content="challenge platform, team challenges, productivity gamification, remote team engagement, workplace motivation">
+    <meta name="author" content="Challangeo">
+    
+    <!-- Robots directive -->
+    <meta name="robots" content="index, follow">
+    
+    <!-- Canonical link -->
+    <link rel="canonical" href="https://challangeo.io/">
+    
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Challengify">
+    <meta property="og:url" content="https://challangeo.io/">
+    <meta property="og:title" content="Challangeo | Daily Micro-Challenges to Spark Your Creativity">
+    <meta property="og:description" content="Boost team productivity with Challangeo - the premier platform for creative challenges and team engagement activities.">
+    <meta property="og:image" content="https://challangeo.io/images/challengify-logo.png">
+    <meta property="og:site_name" content="Challangeo">
+    
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Challengify | Daily Micro-Challenges">
-    <meta name="twitter:description" content="Challenge yourself daily with micro-challenges designed to spark creativity and improve your coding skills">
+    <meta name="twitter:title" content="Challangeo | Daily Micro-Challenges">
+    <meta name="twitter:description" content="Boost team productivity with Challangeo - the premier platform for creative challenges and team engagement activities.">
+    <meta name="twitter:image" content="https://challangeo.io/images/challengify-logo.png">
+    
+    <!-- Structured data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Challangeo",
+      "url": "https://challangeo.io",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://challangeo.io/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    
     <?php use Kpzsproductions\Challengify\Services\Database; ?>
-    <title>Challengify | Daily Micro-Challenges to Spark Your Creativity</title>
+    <title>Challangeo | Daily Micro-Challenges to Spark Your Creativity</title> 
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/images/challangify-logo.png" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/challangify-logo/apple-touch-icon.png">
+    
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="/css/tailwind/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="/css/styles.css">
-
-    <link rel="shortcut icon" href="/images/challengify-logo.png" type="image/x-icon">
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 </head>
 <body>

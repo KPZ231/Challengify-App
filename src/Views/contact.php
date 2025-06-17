@@ -3,7 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Us - Challengify</title>
+    <meta name="description" content="Contact the Challangeo team for information about our challenge platform, workplace gamification, or team engagement solutions.">
+    <meta name="keywords" content="contact challangeo, challenge platform support, team challenges contact, productivity gamification help">
+    <meta name="author" content="Challangeo">
+    
+    <!-- Robots directive -->
+    <meta name="robots" content="index, follow">
+    
+    <!-- Canonical link -->
+    <link rel="canonical" href="https://challangeo.io/contact">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://challangeo.io/contact">
+    <meta property="og:title" content="Contact Us - Challangeo">
+    <meta property="og:description" content="Contact the Challangeo team for information about our challenge platform, workplace gamification, or team engagement solutions.">
+    <meta property="og:image" content="https://challangeo.io/images/challengify-logo.png">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Contact Us - Challangeo">
+    <meta name="twitter:description" content="Contact the Challangeo team for information about our challenge platform, workplace gamification, or team engagement solutions.">
+    
+    <!-- Structured data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ContactPage",
+      "mainEntity": {
+        "@type": "Organization",
+        "name": "Challangeo",
+        "email": "support@challengify.com",
+        "telephone": "+1 (555) 123-4567",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "123 Challenge Street",
+          "addressLocality": "Innovation City",
+          "postalCode": "12345",
+          "addressCountry": "US"
+        }
+      }
+    }
+    </script>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/images/challangify-logo/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/challangify-logo/apple-touch-icon.png">
+    
+    <title>Contact Us - Challangeo</title>
     <link rel="stylesheet" href="/css/tailwind/tailwind.min.css">
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">

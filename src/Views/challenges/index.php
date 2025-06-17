@@ -3,9 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Browse and participate in creative challenges on Challengify">
-    <meta name="keywords" content="challenges, creative challenges, daily challenges, creativity, community challenges">
-    <title>Challenges | Challengify</title>
+    <meta name="description" content="Browse and participate in creative team challenges on Challangeo - boost engagement and productivity through gamification.">
+    <meta name="keywords" content="team challenges, workplace challenges, creative challenges, productivity gamification, employee engagement">
+    <meta name="author" content="Challangeo">
+    
+    <!-- Robots directive -->
+    <meta name="robots" content="index, follow">
+    
+    <!-- Canonical link -->
+    <link rel="canonical" href="https://challangeo.io/challenges">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://challangeo.io/challenges">
+    <meta property="og:title" content="Challenges | Challangeo">
+    <meta property="og:description" content="Browse and participate in creative team challenges on Challangeo - boost engagement and productivity through gamification.">
+    <meta property="og:image" content="https://challangeo.io/images/challengify-logo.png">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Challenges | Challangeo">
+    <meta name="twitter:description" content="Browse and participate in creative team challenges on Challangeo - boost engagement and productivity through gamification.">
+    
+    <!-- Structured data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Challangeo Challenges",
+      "description": "Browse and participate in creative team challenges",
+      "url": "https://challangeo.io/challenges"
+    }
+    </script>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/images/challangify-logo/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/challangify-logo/apple-touch-icon.png">
+    
+    <title>Challenges | Challangeo</title>
     <link rel="stylesheet" href="/css/tailwind/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="/css/styles.css">

@@ -16,7 +16,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Community - Challengify</title>
+    <meta name="description" content="Join the Challangeo community - connect with challenge participants, find creative teammates, and discover top contributors.">
+    <meta name="keywords" content="challangeo community, challenge platform users, creative teams, team collaboration, workplace challenges">
+    <meta name="author" content="Challangeo">
+    
+    <!-- Robots directive -->
+    <meta name="robots" content="index, follow">
+    
+    <!-- Canonical link -->
+    <link rel="canonical" href="https://challangeo.io/community<?= !empty($page) && $page > 1 ? '?page=' . $page : '' ?>">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://challangeo.io/community<?= !empty($page) && $page > 1 ? '?page=' . $page : '' ?>">
+    <meta property="og:title" content="Community - Challangeo">
+    <meta property="og:description" content="Join the Challangeo community - connect with challenge participants, find creative teammates, and discover top contributors.">
+    <meta property="og:image" content="https://challangeo.io/images/challengify-logo.png">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Community - Challangeo">
+    <meta name="twitter:description" content="Join the Challangeo community - connect with challenge participants, find creative teammates, and discover top contributors.">
+    
+    <!-- Structured data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Challangeo Community",
+      "description": "Browse community members and connect with fellow challenge participants",
+      "url": "https://challangeo.io/community",
+      "mainEntity": {
+        "@type": "ItemList",
+        "numberOfItems": <?= $totalUsers ?>,
+        "itemListElement": []
+      }
+    }
+    </script>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/images/challangify-logo/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/challangify-logo/apple-touch-icon.png">
+    
+    <title>Community - Challangeo</title>
     <link rel="stylesheet" href="/css/tailwind/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="/css/styles.css">

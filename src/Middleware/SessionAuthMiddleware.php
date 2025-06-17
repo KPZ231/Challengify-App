@@ -49,11 +49,47 @@ class SessionAuthMiddleware implements MiddlewareInterface
                 $_SESSION['created_at'] = time();
             }
             
+            // Regenerate session ID periodically (every 30 minutes)
+            if (!isset($_SESSION['last_regeneration']) || (time() - $_SESSION['last_regeneration'] > 1800)) {
+                session_regenerate_id(true);
+                $_SESSION['last_regeneration'] = time();
+            }
+            
             // Expire session after 2 hours of inactivity
             if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 7200)) {
                 session_unset();
                 session_destroy();
                 session_start(); // Start a new session
+            }
+            
+            // Create and validate session fingerprint
+            if (!isset($_SESSION['client_fingerprint'])) {
+                $userAgent = $request->getServerParams()['HTTP_USER_AGENT'] ?? '';
+                $ipSegments = explode('.', $request->getServerParams()['REMOTE_ADDR'] ?? '');
+                $ipPartial = '';
+                if (count($ipSegments) >= 3) {
+                    $ipPartial = $ipSegments[0] . '.' . $ipSegments[1] . '.' . $ipSegments[2];
+                }
+                $_SESSION['client_fingerprint'] = hash('sha256', $userAgent . $ipPartial);
+            } else {
+                // Verify fingerprint matches
+                $userAgent = $request->getServerParams()['HTTP_USER_AGENT'] ?? '';
+                $ipSegments = explode('.', $request->getServerParams()['REMOTE_ADDR'] ?? '');
+                $ipPartial = '';
+                if (count($ipSegments) >= 3) {
+                    $ipPartial = $ipSegments[0] . '.' . $ipSegments[1] . '.' . $ipSegments[2];
+                }
+                $currentFingerprint = hash('sha256', $userAgent . $ipPartial);
+                
+                if ($_SESSION['client_fingerprint'] !== $currentFingerprint) {
+                    // Potential session hijacking, destroy session
+                    session_unset();
+                    session_destroy();
+                    session_start();
+                    // Log the potential attack
+                    error_log('Potential session hijacking attempt detected. IP: ' . 
+                              ($request->getServerParams()['REMOTE_ADDR'] ?? 'unknown'));
+                }
             }
         }
 
@@ -68,6 +104,7 @@ class SessionAuthMiddleware implements MiddlewareInterface
                     // Account is suspended or inactive - force logout
                     session_unset();
                     session_destroy();
+                    session_start();
                 } else {
                     // Create new User instance with validated data
                     $user = new User(

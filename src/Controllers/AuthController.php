@@ -368,31 +368,46 @@ class AuthController
     
     /**
      * Validate password strength
+     * Enforces a strong password policy:
+     * - At least 8 characters
+     * - At least one uppercase letter
+     * - At least one lowercase letter 
+     * - At least one number
+     * - At least one special character
+     * - Not in common password list
      */
     private function validatePasswordStrength(string $password): bool
     {
-        // Password must be at least 8 characters
+        // Minimum 8 characters
         if (strlen($password) < 8) {
             return false;
         }
         
-        // Password must contain at least one uppercase letter
+        // Check for at least one uppercase letter
         if (!preg_match('/[A-Z]/', $password)) {
             return false;
         }
         
-        // Password must contain at least one lowercase letter
+        // Check for at least one lowercase letter
         if (!preg_match('/[a-z]/', $password)) {
             return false;
         }
         
-        // Password must contain at least one number
+        // Check for at least one number
         if (!preg_match('/[0-9]/', $password)) {
             return false;
         }
         
-        // Password must contain at least one special character
-        if (!preg_match('/[^a-zA-Z0-9]/', $password)) {
+        // Check for at least one special character
+        if (!preg_match('/[^A-Za-z0-9]/', $password)) {
+            return false;
+        }
+        
+        // Check against common password lists (implementation depends on available resources)
+        // For simplicity, we'll check a few very common passwords
+        $commonPasswords = ['password', 'password123', '123456', 'qwerty', 'admin', 'welcome',
+                           'letmein', '123456789', '12345678', 'abc123', 'football', 'monkey'];
+        if (in_array(strtolower($password), $commonPasswords)) {
             return false;
         }
         

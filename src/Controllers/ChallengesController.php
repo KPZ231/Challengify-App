@@ -148,7 +148,7 @@ class ChallengesController
         
         // CSRF validation
         $csrfToken = $parsedBody['csrf_token'] ?? '';
-        if (!$this->securityService->validateToken($csrfToken)) {
+        if (!$this->securityService->validateToken($csrfToken, 'challenge_submission')) {
             setFlash('error', 'Invalid security token. Please try again.');
             return redirect("/challenges/{$challengeId}");
         }
@@ -164,28 +164,35 @@ class ChallengesController
         
         if (isset($uploadedFiles['submission_file']) && $uploadedFiles['submission_file']->getError() === UPLOAD_ERR_OK) {
             try {
-                // Define allowed file types for submissions
+                // Define allowed file types for submissions (more restrictive)
                 $allowedTypes = [
-                    // Images
+                    // Images only
                     'image/jpeg', 'image/png', 'image/gif', 'image/webp',
-                    // Documents
-                    'application/pdf', 'application/msword', 
+                    // Documents - restrict to safer formats
+                    'application/pdf', 
                     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                    'application/vnd.ms-excel',
-                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                    'application/vnd.ms-powerpoint',
-                    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-                    'text/plain', 'text/csv', 'text/html',
-                    // Videos
-                    'video/mp4', 'video/mpeg', 'video/quicktime', 'video/x-msvideo',
-                    'video/x-ms-wmv', 'video/webm'
+                    'text/plain', 'text/csv'
                 ];
                 
-                // Max file size of 15MB
-                $maxFileSize = 15 * 1024 * 1024; 
+                // Reduce max file size to 5MB
+                $maxFileSize = 5 * 1024 * 1024;
                 
                 // Upload directory
                 $uploadDir = __DIR__ . '/../../public/uploads/submissions';
+                
+                // Validate the file extension separately for extra security
+                $originalFilename = $uploadedFiles['submission_file']->getClientFilename();
+                $extension = pathinfo($originalFilename, PATHINFO_EXTENSION);
+                
+                // Define safe extensions
+                $safeExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'docx', 'txt', 'csv'];
+                
+                if (!in_array(strtolower($extension), $safeExtensions)) {
+                    throw new \RuntimeException('File type not allowed. Allowed types: images, PDF, DOCX, TXT, CSV.');
+                }
+                
+                // Generate a random, unique filename to prevent file overwriting
+                $newFilename = bin2hex(random_bytes(8)) . '_' . time() . '.' . $extension;
                 
                 // Upload the file using the service
                 $uploadResult = $this->fileUploadService->upload(
@@ -193,12 +200,22 @@ class ChallengesController
                     [
                         'directory' => $uploadDir,
                         'allowedTypes' => $allowedTypes,
-                        'maxFileSize' => $maxFileSize
+                        'maxFileSize' => $maxFileSize,
+                        'filename' => $newFilename
                     ]
                 );
                 
                 // Set the public path for the file
                 $filePath = '/uploads/submissions/' . $uploadResult['filename'];
+                
+                // Additional security: verify file content matches extension
+                if (!$this->verifyFileContent($uploadDir . '/' . $uploadResult['filename'], $extension)) {
+                    // If content doesn't match claimed type, delete the file
+                    if (file_exists($uploadDir . '/' . $uploadResult['filename'])) {
+                        unlink($uploadDir . '/' . $uploadResult['filename']);
+                    }
+                    throw new \RuntimeException('File content does not match its extension.');
+                }
             } catch (RuntimeException $e) {
                 $errors['file'] = $e->getMessage();
             }
@@ -334,5 +351,90 @@ class ChallengesController
         // Output file and stop script execution
         readfile($absoluteFilePath);
         exit;
+    }
+
+    /**
+     * Verify file content matches claimed file extension
+     * 
+     * @param string $filePath Full path to the file
+     * @param string $extension File extension to check against
+     * @return bool Whether the content matches the extension
+     */
+    private function verifyFileContent(string $filePath, string $extension): bool
+    {
+        if (!file_exists($filePath)) {
+            return false;
+        }
+        
+        // Verify using file signatures (magic numbers)
+        $handle = fopen($filePath, 'rb');
+        if (!$handle) {
+            return false;
+        }
+        
+        // Read first 12 bytes for file signature
+        $fileStart = fread($handle, 12);
+        fclose($handle);
+        
+        // Convert to hex for signature comparison
+        $hex = bin2hex($fileStart);
+        
+        // Validate based on extension and file signature
+        switch (strtolower($extension)) {
+            case 'jpg':
+            case 'jpeg':
+                // JPEG signature: FF D8 FF
+                return strpos($hex, 'ffd8ff') === 0;
+                
+            case 'png':
+                // PNG signature: 89 50 4E 47 0D 0A 1A 0A
+                return strpos($hex, '89504e470d0a1a0a') === 0;
+                
+            case 'gif':
+                // GIF signature: 47 49 46 38 (GIF8)
+                return strpos($hex, '47494638') === 0;
+                
+            case 'pdf':
+                // PDF signature: 25 50 44 46 (PDF)
+                return strpos($hex, '25504446') === 0;
+                
+            case 'docx':
+                // DOCX files are ZIP files with specific content
+                // ZIP signature: 50 4B 03 04
+                return strpos($hex, '504b0304') === 0;
+                
+            case 'txt':
+            case 'csv':
+                // Text files don't have a specific signature
+                // We'll check that it's ASCII/UTF-8 text
+                return $this->isTextFile($filePath);
+                
+            default:
+                // For unknown types, reject
+                return false;
+        }
+    }
+    
+    /**
+     * Check if a file contains only text characters
+     * 
+     * @param string $filePath Path to the file
+     * @return bool Whether the file contains only text
+     */
+    private function isTextFile(string $filePath): bool
+    {
+        // Read file content
+        $content = file_get_contents($filePath);
+        if ($content === false) {
+            return false;
+        }
+        
+        // Check for binary content (null bytes or control characters except tabs/newlines)
+        if (preg_match('/[\x00-\x08\x0B-\x0C\x0E-\x1F]/', $content)) {
+            return false;
+        }
+        
+        // Check UTF-8 validity
+        return mb_check_encoding($content, 'UTF-8');
     }
 } 

@@ -38,13 +38,18 @@ class SecurityService
             // First normalize the data to prevent Unicode attacks
             $data = $this->normalizeUnicode($data);
             
-            // Remove all HTML tags and encode special characters
-            $data = strip_tags($data);
+            // Remove dangerous content
+            $data = preg_replace([
+                '/javascript\s*:/i',
+                '/data\s*:/i',
+                '/vbscript\s*:/i',
+                '/expression\s*\(/i',
+                '/on\w+\s*=/i',  // Matches onclick, onload, etc.
+                '/<\s*script/i'
+            ], '', $data);
             
-            // Block script injections in CSS properties or event handlers
-            $data = preg_replace('/javascript\s*:/i', '', $data);
-            $data = preg_replace('/on\w+\s*=/i', '', $data);
-            $data = preg_replace('/expression\s*\(/i', '', $data);
+            // Remove all HTML tags
+            $data = strip_tags($data);
             
             // Encode special characters to prevent HTML injection
             $data = htmlspecialchars($data, ENT_QUOTES | ENT_HTML5, 'UTF-8');
@@ -75,25 +80,53 @@ class SecurityService
     }
 
     /**
-     * Generate a secure random token
+     * Generate a secure random token with form-specific tokens and expiration
      */
-    public function generateToken(int $length = 32): string
+    public function generateToken(string $formName = 'default', int $length = 32): string
     {
-        if (!isset($_SESSION['csrf_token'])) {
-            $_SESSION['csrf_token'] = bin2hex(random_bytes($length / 2));
+        if (!isset($_SESSION['csrf_tokens'])) {
+            $_SESSION['csrf_tokens'] = [];
         }
-        return $_SESSION['csrf_token'];
+        
+        // Generate a unique token for this form
+        $token = bin2hex(random_bytes($length / 2));
+        
+        // Store with timestamp for expiration
+        $_SESSION['csrf_tokens'][$formName] = [
+            'token' => $token,
+            'created_at' => time()
+        ];
+        
+        return $token;
     }
     
     /**
      * Validate CSRF token against the one stored in session
+     * Implements one-time use and expiration for enhanced security
      */
-    public function validateToken(?string $token): bool
+    public function validateToken(?string $token, string $formName = 'default'): bool
     {
-        if (empty($token) || empty($_SESSION['csrf_token'])) {
+        if (empty($token) || empty($_SESSION['csrf_tokens'][$formName])) {
             return false;
         }
         
-        return hash_equals($_SESSION['csrf_token'], $token);
+        $storedToken = $_SESSION['csrf_tokens'][$formName]['token'];
+        $tokenTime = $_SESSION['csrf_tokens'][$formName]['created_at'];
+        
+        // Check if token is expired (1 hour lifetime)
+        if (time() - $tokenTime > 3600) {
+            unset($_SESSION['csrf_tokens'][$formName]);
+            return false;
+        }
+        
+        // Use constant-time comparison
+        $valid = hash_equals($storedToken, $token);
+        
+        // One-time use: remove after validation
+        if ($valid) {
+            unset($_SESSION['csrf_tokens'][$formName]);
+        }
+        
+        return $valid;
     }
 } 

@@ -3,7 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Challengify - Daily Micro-Challenges</title>
+    <meta name="description" content="Learn about Challangeo - the platform for creative team challenges that boost productivity and workplace engagement.">
+    <meta name="keywords" content="challenge platform, team building, productivity tools, workplace engagement, creative challenges">
+    <meta name="author" content="Challangeo">
+    
+    <!-- Robots directive -->
+    <meta name="robots" content="index, follow">
+    
+    <!-- Canonical link -->
+    <link rel="canonical" href="https://challangeo.io/about">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://challangeo.io/about">
+    <meta property="og:title" content="About Challangeo - Daily Micro-Challenges Platform">
+    <meta property="og:description" content="Learn about Challangeo - the platform for creative team challenges that boost productivity and workplace engagement.">
+    <meta property="og:image" content="https://challangeo.io/images/challengify-logo.png">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="About Challangeo - Daily Micro-Challenges Platform">
+    <meta name="twitter:description" content="Learn about Challangeo - the platform for creative team challenges that boost productivity and workplace engagement.">
+    
+    <!-- Structured data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      "mainEntity": {
+        "@type": "Organization",
+        "name": "Challangeo",
+        "description": "A platform for daily micro-challenges to spark creativity and build new habits",
+        "url": "https://challangeo.io"
+      }
+    }
+    </script>
+    
+    <title>About Challangeo - Daily Micro-Challenges Platform</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/images/challangify-logo/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/challangify-logo/apple-touch-icon.png">
+    
     <link href="/css/tailwind/tailwind.min.css" rel="stylesheet">
     <link href="/css/styles.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
